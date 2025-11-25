@@ -33,34 +33,34 @@ energy = collect(range(0.1, 20.0, 200))
 model = XS_PhotoelectricAbsorption()
 
 flux = similar(energy)[1:end-1]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">199-element Vector{Float64}:
- 6.9442717608391e-310
- 0.0
- 6.94426623166904e-310
- 0.0
- 6.94426555833978e-310
- 0.0
- 6.94426555833978e-310
- 0.0
- 6.94426623166904e-310
- 0.0
+ 6.89963108109903e-310
+ 6.89963108109903e-310
+ 6.8996283388928e-310
+ 6.89962833889597e-310
+ 6.89963108141484e-310
+ 6.89963108109903e-310
+ 6.8996283322589e-310
+ 6.89962833226363e-310
+ 6.89962833273003e-310
+ 6.89962833226837e-310
  ⋮
- 6.94426934687863e-310
  5.0e-324
- 6.94426934687863e-310
+ 6.89951223785333e-310
  5.0e-324
- 6.94426934687863e-310
- 5.0e-324
- 6.94426934687863e-310
- 5.0e-324
- 6.9442041885985e-310</code></pre><p>Benchmarking with <a href="https://juliaci.github.io/BenchmarkTools.jl/stable/">BenchmarkTools.jl</a>:</p><pre><code class="language-julia hljs">using BenchmarkTools
-@benchmark invokemodel!($flux, $energy, $model)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">BenchmarkTools.Trial: 4758 samples with 1 evaluation per sample.
- Range <span class="sgr90">(</span><span class="sgr36"><span class="sgr1">min</span></span> … <span class="sgr35">max</span><span class="sgr90">):  </span><span class="sgr36"><span class="sgr1">1.042 ms</span></span> … <span class="sgr35"> 1.685 ms</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>min … max<span class="sgr90">): </span>0.00% … 0.00%
- Time  <span class="sgr90">(</span><span class="sgr34"><span class="sgr1">median</span></span><span class="sgr90">):     </span><span class="sgr34"><span class="sgr1">1.045 ms              </span></span><span class="sgr90">┊</span> GC <span class="sgr90">(</span>median<span class="sgr90">):    </span>0.00%
- Time  <span class="sgr90">(</span><span class="sgr32"><span class="sgr1">mean</span></span> ± <span class="sgr32">σ</span><span class="sgr90">):   </span><span class="sgr32"><span class="sgr1">1.047 ms</span></span> ± <span class="sgr32">16.387 μs</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>mean ± σ<span class="sgr90">):  </span>0.00% ± 0.00%
+ 6.8995122378549e-310
+ 0.0
+ 0.0
+ 0.0
+ 0.0
+ 5.0e-324</code></pre><p>Benchmarking with <a href="https://juliaci.github.io/BenchmarkTools.jl/stable/">BenchmarkTools.jl</a>:</p><pre><code class="language-julia hljs">using BenchmarkTools
+@benchmark invokemodel!($flux, $energy, $model)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">BenchmarkTools.Trial: 4764 samples with 1 evaluation per sample.
+ Range <span class="sgr90">(</span><span class="sgr36"><span class="sgr1">min</span></span> … <span class="sgr35">max</span><span class="sgr90">):  </span><span class="sgr36"><span class="sgr1">1.041 ms</span></span> … <span class="sgr35"> 1.505 ms</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>min … max<span class="sgr90">): </span>0.00% … 0.00%
+ Time  <span class="sgr90">(</span><span class="sgr34"><span class="sgr1">median</span></span><span class="sgr90">):     </span><span class="sgr34"><span class="sgr1">1.044 ms              </span></span><span class="sgr90">┊</span> GC <span class="sgr90">(</span>median<span class="sgr90">):    </span>0.00%
+ Time  <span class="sgr90">(</span><span class="sgr32"><span class="sgr1">mean</span></span> ± <span class="sgr32">σ</span><span class="sgr90">):   </span><span class="sgr32"><span class="sgr1">1.046 ms</span></span> ± <span class="sgr32">12.093 μs</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>mean ± σ<span class="sgr90">):  </span>0.00% ± 0.00%
 
-  ▁▆██<span class="sgr34">▇</span>▆<span class="sgr32">▅</span>▄▃▂▁▂▂▁▁                                            ▂
-  ████<span class="sgr34">█</span>█<span class="sgr32">█</span>█████████▇▇▆▆▆▆▅▆▇▆▇▅▄▄▃▄▁▅▆▅▄▃▁▃▃▁▁▁▁▃▁▃▁▃▃▃▃▄▄▅▃▆ █
-  1.04 ms<span class="sgr90">      Histogram: <span class="sgr1">log(</span>frequency<span class="sgr1">)</span> by time</span>     1.09 ms <span class="sgr1">&lt;</span>
+  ▃▇█<span class="sgr34">█</span>▇▆<span class="sgr32">▅</span>▃▂▁▁▁▂▁▁▁                                           ▂
+  ███<span class="sgr34">█</span>██<span class="sgr32">█</span>██████████▇▅▆▆▇▆▆▇▆▆▅▇▄▆▅▄▃▃▄▅▅▅▄▅▄▆▆▅▅▃▃▄▄▃▃▄▄▁▁▅▃ █
+  1.04 ms<span class="sgr90">      Histogram: <span class="sgr1">log(</span>frequency<span class="sgr1">)</span> by time</span>     1.08 ms <span class="sgr1">&lt;</span>
 
  Memory estimate<span class="sgr90">: </span><span class="sgr33">256 bytes</span>, allocs estimate<span class="sgr90">: </span><span class="sgr33">8</span>.</code></pre><p>The surrogate we&#39;ll construct will have to be tailored a little to the data we wish to fit, as we need to specify the parameter ranges our surrogate should learn. For example, we might be interested in energies between <span>$0.1$</span> and <span>$20$</span> keV (expressed in our domain), with equivalent hydrogen column <span>$\eta$</span>H anywhere between <span>$10^{-3}$</span> and <span>$30$</span>. We specify the parameter bounds using tuples:</p><pre><code class="language-julia hljs">lower_bounds = (1e-3,)
 upper_bounds = (30.0,)</code></pre><div class="admonition is-info" id="Note-5e8119db9ecc9c02"><header class="admonition-header">Note<a class="admonition-anchor" href="#Note-5e8119db9ecc9c02" title="Permalink"></a></header><div class="admonition-body"><p>The first index is always the energy bounds, and the subsequent indices are the parameters in the same order they are defined in the model structure.</p></div></div><p>Next, we use <a href="#SpectralFitting.make_surrogate_harness"><code>make_surrogate_harness</code></a> to build and optimize a surrogate function for our model. By default, the surrogate uses linear radial basis functions, and seeds the coefficients with a number of seed points. This function then improves the accuracy of the model using <a href="#SpectralFitting.optimize_accuracy!"><code>optimize_accuracy!</code></a>, until a maximal number of iterations has been reached.</p><p>For illustration purposes, we&#39;ll omit the accuracy improving step, and perform this ourselves. We can do this by setting <code>optimization_samples = 0</code> in the keyword arguments:</p><pre><code class="language-julia hljs">using Surrogates
@@ -83,19 +83,19 @@ length(harness.surrogate.x)</code></pre><pre class="documenter-example-output"><
 model.ηH.value = ηh_test
 f = invokemodel(energy, model)
 
-f̂ = harness.surrogate([ηh_test])</code></pre><img src="b5461dc2.svg" alt="Example block output"/><p>Now we&#39;ll use <a href="#SpectralFitting.optimize_accuracy!"><code>optimize_accuracy!</code></a> to improve the faithfulness of our surrogate. This requires making use of <a href="../models/#SpectralFitting.wrap_model_as_objective"><code>wrap_model_as_objective</code></a> as a little wrapper around our model:</p><pre><code class="language-julia hljs">optimize_accuracy!(harness; maxiters=50)
+f̂ = harness.surrogate([ηh_test])</code></pre><img src="08fef8af.svg" alt="Example block output"/><p>Now we&#39;ll use <a href="#SpectralFitting.optimize_accuracy!"><code>optimize_accuracy!</code></a> to improve the faithfulness of our surrogate. This requires making use of <a href="../models/#SpectralFitting.wrap_model_as_objective"><code>wrap_model_as_objective</code></a> as a little wrapper around our model:</p><pre><code class="language-julia hljs">optimize_accuracy!(harness; maxiters=50)
 
-length(harness.surrogate.x)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">52</code></pre><p>We can plot the surrogate model again and see the improvement.</p><pre><code class="language-julia hljs">new_f̂ = harness.surrogate([ηh_test])</code></pre><img src="e28bb400.svg" alt="Example block output"/><p>Tight. We can also inspect the memory footprint of our model:</p><pre><code class="language-julia hljs"># in bytes
+length(harness.surrogate.x)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">52</code></pre><p>We can plot the surrogate model again and see the improvement.</p><pre><code class="language-julia hljs">new_f̂ = harness.surrogate([ηh_test])</code></pre><img src="826c8302.svg" alt="Example block output"/><p>Tight. We can also inspect the memory footprint of our model:</p><pre><code class="language-julia hljs"># in bytes
 Base.summarysize(harness)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">174416</code></pre><p>This may be reduced by lowering <code>maxiters</code> in <a href="#SpectralFitting.optimize_accuracy!"><code>optimize_accuracy!</code></a> at the cost of decreasing faithfulness. However, compare this to the Fortran tabulated source file in the XSPEC source code, which is approximately 224 Kb. The surrogate model with all it&#39;s training data is of the same order.</p><h2 id="Using-a-surrogate-spectral-model"><a class="docs-heading-anchor" href="#Using-a-surrogate-spectral-model">Using a surrogate spectral model</a><a id="Using-a-surrogate-spectral-model-1"></a><a class="docs-heading-anchor-permalink" href="#Using-a-surrogate-spectral-model" title="Permalink"></a></h2><p>Now that we have the surrogate model, we use <a href="#SpectralFitting.SurrogateSpectralModel"><code>SurrogateSpectralModel</code></a> to wrap it into an <a href="../using-models/#SpectralFitting.AbstractSpectralModel"><code>AbstractSpectralModel</code></a>. The constructor also needs to know the model kind, have a copy of the model parameters, and know which symbols to represent the parameters with.</p><pre><code class="language-julia hljs">sm = make_model(harness)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">┌ SurrogateSpectralModel
 │ ηH -&gt; 22.9 ± 0.1 ∈ [ 0, Inf ] <span class="sgr32">FREE</span>
 └ </code></pre><p>We can now use the familiar API and attempt to benchmark the performance:</p><pre><code class="language-julia hljs">@benchmark invokemodel!($flux, $energy, $sm)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">BenchmarkTools.Trial: 10000 samples with 7 evaluations per sample.
- Range <span class="sgr90">(</span><span class="sgr36"><span class="sgr1">min</span></span> … <span class="sgr35">max</span><span class="sgr90">):  </span><span class="sgr36"><span class="sgr1">4.234 μs</span></span> … <span class="sgr35"> 1.632 ms</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>min … max<span class="sgr90">): </span>0.00% … 99.37%
- Time  <span class="sgr90">(</span><span class="sgr34"><span class="sgr1">median</span></span><span class="sgr90">):     </span><span class="sgr34"><span class="sgr1">4.311 μs              </span></span><span class="sgr90">┊</span> GC <span class="sgr90">(</span>median<span class="sgr90">):    </span>0.00%
- Time  <span class="sgr90">(</span><span class="sgr32"><span class="sgr1">mean</span></span> ± <span class="sgr32">σ</span><span class="sgr90">):   </span><span class="sgr32"><span class="sgr1">4.750 μs</span></span> ± <span class="sgr32">16.302 μs</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>mean ± σ<span class="sgr90">):  </span>3.41% ±  0.99%
+ Range <span class="sgr90">(</span><span class="sgr36"><span class="sgr1">min</span></span> … <span class="sgr35">max</span><span class="sgr90">):  </span><span class="sgr36"><span class="sgr1">4.217 μs</span></span> … <span class="sgr35"> 1.611 ms</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>min … max<span class="sgr90">): </span>0.00% … 99.44%
+ Time  <span class="sgr90">(</span><span class="sgr34"><span class="sgr1">median</span></span><span class="sgr90">):     </span><span class="sgr34"><span class="sgr1">4.291 μs              </span></span><span class="sgr90">┊</span> GC <span class="sgr90">(</span>median<span class="sgr90">):    </span>0.00%
+ Time  <span class="sgr90">(</span><span class="sgr32"><span class="sgr1">mean</span></span> ± <span class="sgr32">σ</span><span class="sgr90">):   </span><span class="sgr32"><span class="sgr1">4.717 μs</span></span> ± <span class="sgr32">16.093 μs</span>  <span class="sgr90">┊</span> GC <span class="sgr90">(</span>mean ± σ<span class="sgr90">):  </span>3.40% ±  0.99%
 
-  ▆█<span class="sgr34">▇</span>▄▂        ▁<span class="sgr32">▃</span>▂▁  ▃▅▅▄▂        ▁▂▂▂▁                      ▂
-  ██<span class="sgr34">█</span>██▇▆▆▄▆▇▇▅█<span class="sgr32">█</span>██▆▄██████▆▇▇▅▄▅▇██████▇▇▄▄▄▄▃▄▁▅▅▆▅▅▅▅▇▇▇▆ █
-  4.23 μs<span class="sgr90">      Histogram: <span class="sgr1">log(</span>frequency<span class="sgr1">)</span> by time</span>     6.31 μs <span class="sgr1">&lt;</span>
+  ▇█<span class="sgr34">▆</span>▃▁      ▃<span class="sgr32">▃</span>   ▅▅▄▁       ▂▁ ▁▁                           ▂
+  ██<span class="sgr34">█</span>██▇▄▄▆▆▇█<span class="sgr32">█</span>█▆▇█████▇▇▆▆▄▇██████▇▅▅▄▅▁▄▄▆▅▆▃▄▅▇▆▆▆▃▅▄▄▁▅▆ █
+  4.22 μs<span class="sgr90">      Histogram: <span class="sgr1">log(</span>frequency<span class="sgr1">)</span> by time</span>     6.68 μs <span class="sgr1">&lt;</span>
 
  Memory estimate<span class="sgr90">: </span><span class="sgr33">1.75 KiB</span>, allocs estimate<span class="sgr90">: </span><span class="sgr33">6</span>.</code></pre><p>Comparing this to the initial benchmark of <a href="../xspec-models/#XSPECModels.XS_PhotoelectricAbsorption"><code>XS_PhotoelectricAbsorption</code></a>, we see about a significant speedup, with no allocations, <em>and</em> this surrogate model is now automatic differentiation ready.</p><h2 id="Evaluating-the-model"><a class="docs-heading-anchor" href="#Evaluating-the-model">Evaluating the model</a><a id="Evaluating-the-model-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluating-the-model" title="Permalink"></a></h2><pre><code class="language-julia hljs">p_range = collect(range(1.0, 30.0))
 
@@ -105,11 +105,11 @@ fluxes_vecs = map(p_range) do p
 end
 fluxes_mat = reduce(hcat, fluxes_vecs)
 
-surface(p_range, energy[1:end-1], fluxes_mat, xlabel = &quot;ηH&quot;, ylabel = &quot;E&quot;, zlabel = &quot;f&quot;, title = &quot;Model&quot;)</code></pre><img src="7b1710a7.svg" alt="Example block output"/><pre><code class="language-julia hljs">s_fluxes_vecs = map(p_range) do p
+surface(p_range, energy[1:end-1], fluxes_mat, xlabel = &quot;ηH&quot;, ylabel = &quot;E&quot;, zlabel = &quot;f&quot;, title = &quot;Model&quot;)</code></pre><img src="e01b89bb.svg" alt="Example block output"/><pre><code class="language-julia hljs">s_fluxes_vecs = map(p_range) do p
     sm.params[1].value = p
     display(sm)
     f = invokemodel(energy, sm)
 end
 s_fluxes_mat = reduce(hcat, s_fluxes_vecs)
 
-surface(p_range, energy[1:end-1], s_fluxes_mat, xlabel = &quot;ηH&quot;, ylabel = &quot;E&quot;, zlabel = &quot;f&quot;, title = &quot;Surrogate&quot;)</code></pre><img src="22c1a814.svg" alt="Example block output"/><h2 id="Sharing-surrogate-models"><a class="docs-heading-anchor" href="#Sharing-surrogate-models">Sharing surrogate models</a><a id="Sharing-surrogate-models-1"></a><a class="docs-heading-anchor-permalink" href="#Sharing-surrogate-models" title="Permalink"></a></h2><p>To export and import surrogate models, <a href="https://github.com/JuliaIO/JLD2.jl">JLD2.jl</a> is recommended.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../wrapper-models/">« Wrapper models</a><a class="docs-footer-nextpage" href="../xspec-models/">XSPEC models »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 24 November 2025 18:05">Monday 24 November 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+surface(p_range, energy[1:end-1], s_fluxes_mat, xlabel = &quot;ηH&quot;, ylabel = &quot;E&quot;, zlabel = &quot;f&quot;, title = &quot;Surrogate&quot;)</code></pre><img src="525bebc8.svg" alt="Example block output"/><h2 id="Sharing-surrogate-models"><a class="docs-heading-anchor" href="#Sharing-surrogate-models">Sharing surrogate models</a><a id="Sharing-surrogate-models-1"></a><a class="docs-heading-anchor-permalink" href="#Sharing-surrogate-models" title="Permalink"></a></h2><p>To export and import surrogate models, <a href="https://github.com/JuliaIO/JLD2.jl">JLD2.jl</a> is recommended.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../wrapper-models/">« Wrapper models</a><a class="docs-footer-nextpage" href="../xspec-models/">XSPEC models »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Tuesday 25 November 2025 04:44">Tuesday 25 November 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
