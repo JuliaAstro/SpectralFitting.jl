@@ -1,7 +1,7 @@
 name = "SpectralFitting"
 uuid = "f2c56810-742e-4b72-8bf4-27af3bb81a12"
-authors = ["Fergus Baker <fergus@cosroe.com>"]
 version = "0.7.3"
+authors = ["Fergus Baker <fergus@cosroe.com>"]
 
 [deps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
@@ -36,4 +36,5 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 [compat]
 MultiLinearInterpolations = "0.1.2"
 Polynomials = "4"
+RecipesBase = "1"
 Surrogates = "6.11"
