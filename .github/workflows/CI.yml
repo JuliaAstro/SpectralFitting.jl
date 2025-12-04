@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   spectralfitting:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
+    name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - spectralfitting
     timeout-minutes: 30
     runs-on: ${{ matrix.os }}
     strategy:
@@ -77,7 +77,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   xspecmodels:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
+    name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - xspecmodels
     timeout-minutes: 30
     runs-on: ${{ matrix.os }}
     strategy:
