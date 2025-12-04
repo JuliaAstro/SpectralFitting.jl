@@ -44,6 +44,14 @@ jobs:
           Pkg.Registry.add(url="https://github.com/astro-group-bristol/AstroRegistry/")
           Pkg.Registry.add(name="General")
       - name: Set up environment
+        shell: julia --color=yes --project=docs {0}
+        run: import Pkg; Pkg.instantiate()
+        env:
+          JULIA_PKG_PRECOMPILE_AUTO: false
+      - name: Precompile environment
+        shell: julia --color=yes --project=docs {0}
+        run: import Pkg; Pkg.precompile()
+      - name: Build and deploy documentation
         uses: julia-actions/julia-docdeploy@v1
         env:
           JULIA_NUM_THREADS: "auto"
