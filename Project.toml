@@ -35,6 +35,9 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 FileIO = "1"
+Distributions = "0.25"
+ForwardDiff = "1"
 MultiLinearInterpolations = "0.1.2"
 Polynomials = "4"
+Statistics = "1"
 Surrogates = "6.11"
