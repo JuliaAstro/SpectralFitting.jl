@@ -1,15 +1,15 @@
 name: Documentation
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     tags: ["*"]
-  pull_request:
-    branches: [main]
 
 concurrency:
   # cancels when a PR gets updated
-  group: ${{ github.head_ref || github.run_id }}-${{ github.actor }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}-${{ github.actor }}
   cancel-in-progress: true
 
 jobs:
