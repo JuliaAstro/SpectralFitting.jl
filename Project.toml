@@ -1,6 +1,6 @@
 name = "SpectralFitting"
 uuid = "f2c56810-742e-4b72-8bf4-27af3bb81a12"
-version = "0.7.3"
+version = "0.7.4"
 authors = ["Fergus Baker <fergus@cosroe.com>"]
 
 [deps]
