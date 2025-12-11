@@ -119,7 +119,7 @@ Many models will use `Float32`, which the caller may want to consider, if the
 tables are very large.
 """
 function TableModelData(::Val{N}, path::String; T::Type = Float64) where {N}
-    f = FITS(path)
+    f = fits(path)
 
     # this assumes energy is always contiguously binned, probably valid enough
     # for XSPEC table models

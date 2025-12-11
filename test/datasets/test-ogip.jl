@@ -1,9 +1,6 @@
 using Test
 using SpectralFitting
 
-@show testdir
-
-
 xmm_rmf_path = joinpath(testdir, "xmm/pn.rmf")
 nustar_rmf_path = joinpath(testdir, "nustar/nu60001047002A01_sr.rmf")
 
