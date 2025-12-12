@@ -5,28 +5,6 @@ import SpectralFitting: SpectralUnits
 
 import FITSFiles
 
-function _fitsfiles_getkey(cards, key)
-    for card in cards
-        if card.key == key
-            return card.value
-        end
-    end
-    throw(KeyError("$key"))
-end
-
-function _fitsfiles_getkey(cards, key, default)
-    for card in cards
-        if card.key == key
-            return card.value
-        end
-    end
-    return default
-end
-
-function _fitsfiles_haskey(cards, key)
-    !isnothing(_fitsfiles_getkey(cards, key, nothing))
-end
-
 using SparseArrays
 
 struct MissingHeader <: Exception
@@ -86,14 +64,14 @@ function parse_rmf_header(table::FITSFiles.HDU)
     end
 
     tlindex = "TLMIN$findex"
-    first_channel = if _fitsfiles_haskey(table.cards, tlindex)
-        _parse_any(Int, _fitsfiles_getkey(table.cards, tlindex))
+    first_channel = if haskey(table.cards, tlindex)
+        _parse_any(Int, get(table.cards, tlindex))
     else
         @warn "No TLMIN key set in RMF header ($tl_min_key). Assuming channels start at 1."
         1
     end
-    num_channels = if _fitsfiles_haskey(table.cards, "DETCHANS")
-        _parse_any(Int, _fitsfiles_getkey(table.cards, "DETCHANS"))
+    num_channels = if haskey(table.cards, "DETCHANS")
+        _parse_any(Int, get(table.cards, "DETCHANS"))
     else
         @warn "DETCHANS is not set in RMF header. Infering channel count from table length."
         -1
@@ -193,7 +171,7 @@ function find_extension(
     # find the correct extensions
     i::Int = 2
     for hdu in fits
-        extname = _fitsfiles_getkey(hdu.cards, "EXTNAME", nothing)
+        extname = get(hdu.cards, "EXTNAME", nothing)
         if isnothing(extname)
             continue
         end
@@ -312,32 +290,32 @@ function build_response_matrix!(
 end
 
 function _get_exposure_time(header)
-    if _fitsfiles_haskey(header, "EXPOSURE")
-        return _fitsfiles_getkey(header, "EXPOSURE")
+    if haskey(header, "EXPOSURE")
+        return get(header, "EXPOSURE")
     end
-    if _fitsfiles_haskey(header, "TELAPSE")
-        return _fitsfiles_getkey(header, "TELAPSE")
+    if haskey(header, "TELAPSE")
+        return get(header, "TELAPSE")
     end
     # maybe time stops given
-    if (_fitsfiles_haskey(header, "TSTART")) && (_fitsfiles_haskey(header, "TSTOP"))
-        return _fitsfiles_getkey(header, "TSTOP") - _fitsfiles_getkey(header, "TSTART")
+    if (haskey(header, "TSTART")) && (haskey(header, "TSTOP"))
+        return get(header, "TSTOP") - get(header, "TSTART")
     end
     @warn "Cannot find or infer exposure time."
     0.0
 end
 
 function _get_stable(::Type{T}, header, name, default)::T where {T}
-    _fitsfiles_getkey(header, name, T(default))
+    get(header, name, T(default))
 end
 
 function read_spectrum(path; T::Type = Float64)
     info::SpectralFitting.Spectrum{T} = _read_fits_and_close(path) do fits
         header = fits[2].cards
         # if not set, assume not poisson errors
-        is_poisson = _string_boolean(_fitsfiles_getkey(header, "POISSERR", false))
+        is_poisson = _string_boolean(get(header, "POISSERR", false))
         # read general infos
-        instrument = strip(_fitsfiles_getkey(header, "INSTRUME"))
-        telescope = strip(_fitsfiles_getkey(header, "TELESCOP"))
+        instrument = strip(get(header, "INSTRUME"))
+        telescope = strip(get(header, "TELESCOP"))
         exposure_time = T(_get_exposure_time(header))
         background_scale = _get_stable(T, header, "BACKSCAL", one(T))
         area_scale = _get_stable(T, header, "AREASCAL", one(T))
@@ -419,8 +397,8 @@ end
 function read_filename(header, entry, parent, exts...)
     data_directory = Base.dirname(parent)
     parent_name = basename(parent)
-    if _fitsfiles_haskey(header, entry)
-        path::String = strip(_fitsfiles_getkey(header, entry))
+    if haskey(header, entry)
+        path::String = strip(get(header, entry))
         if path == "NONE"
             return nothing
         end
