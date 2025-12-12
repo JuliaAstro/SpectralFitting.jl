@@ -1,9 +1,6 @@
 using Test
 using SpectralFitting
 
-@show testdir
-
-
 xmm_rmf_path = joinpath(testdir, "xmm/pn.rmf")
 nustar_rmf_path = joinpath(testdir, "nustar/nu60001047002A01_sr.rmf")
 
@@ -41,7 +38,6 @@ spec_nustar = OGIP.read_spectrum(nustar_spec_path)
 # test reading background
 xmm_backgroud_path = joinpath(testdir, "xmm/pn_bg_spec.fits")
 nustar_background_path = joinpath(testdir, "nustar/nu60001047002A01_bk.pha")
-
 
 bg_xmm = OGIP.read_background(xmm_backgroud_path)
 @test length(bg_xmm.channels) == 4096

@@ -9,8 +9,8 @@ import Distributions
 import ConstructionBase
 
 import Random
+import FITSFiles
 
-using FITSIO
 using SparseArrays
 using Surrogates
 using LinearAlgebra
@@ -30,6 +30,7 @@ import Optimization
 using DocStringExtensions
 
 # non-General packages
+# TODO: remove this as a dependency
 using MultiLinearInterpolations
 
 abstract type AbstractInstrument end

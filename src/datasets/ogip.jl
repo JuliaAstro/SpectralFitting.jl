@@ -2,7 +2,9 @@ module OGIP
 
 import SpectralFitting
 import SpectralFitting: SpectralUnits
-using FITSIO
+
+import FITSFiles
+
 using SparseArrays
 
 struct MissingHeader <: Exception
@@ -55,24 +57,21 @@ function _string_boolean(@nospecialize(value::V))::Bool where {V}
 end
 
 # functions
-function parse_rmf_header(table::TableHDU)
-    header = FITSIO.read_header(table)
-    columns = FITSIO.colnames(table)
-
-    findex = findfirst(==("F_CHAN"), columns)
+function parse_rmf_header(table::FITSFiles.HDU)
+    findex = findfirst(==(:F_CHAN), keys(table.data))
     if isnothing(findex)
         throw(MissingHeader("F_CHAN"))
     end
 
     tlindex = "TLMIN$findex"
-    first_channel = if haskey(header, tlindex)
-        _parse_any(Int, header[tlindex])
+    first_channel = if haskey(table.cards, tlindex)
+        _parse_any(Int, get(table.cards, tlindex))
     else
         @warn "No TLMIN key set in RMF header ($tl_min_key). Assuming channels start at 1."
         1
     end
-    num_channels = if haskey(header, "DETCHANS")
-        _parse_any(Int, header["DETCHANS"])
+    num_channels = if haskey(table.cards, "DETCHANS")
+        _parse_any(Int, get(table.cards, "DETCHANS"))
     else
         @warn "DETCHANS is not set in RMF header. Infering channel count from table length."
         -1
@@ -80,14 +79,14 @@ function parse_rmf_header(table::TableHDU)
     RMFHeader(first_channel, num_channels)
 end
 
-function read_rmf_channels(table::TableHDU, T::Type)
-    channels = _parse_any.(Int, read(table, "CHANNEL"))
-    energy_low = _parse_any.(T, read(table, "E_MIN"))
-    energy_high = _parse_any.(T, read(table, "E_MAX"))
+function read_rmf_channels(table::FITSFiles.HDU, T::Type)
+    channels = _parse_any.(Int, table.data.CHANNEL)
+    energy_low = _parse_any.(T, table.data.E_MIN)
+    energy_high = _parse_any.(T, table.data.E_MAX)
     RMFChannels(channels, energy_low, energy_high)
 end
 
-function _chan_to_vectors(chan::Matrix)
+function _chan_to_vectors(chan::AbstractMatrix)
     map(eachcol(chan)) do column
         i = findfirst(==(0), column)
         # if no zeroes, return full column
@@ -102,9 +101,11 @@ function _chan_to_vectors(chan::Matrix)
 end
 
 function _translate_channel_array(channel)
-    if channel isa Matrix
-        _chan_to_vectors(channel)
+    if channel isa AbstractMatrix
+        # transpose the matrix, since FITSFiles reads things in Julia-style
+        _chan_to_vectors(transpose(channel))
     elseif eltype(channel) <: AbstractVector
+        # reorder for the same reason as above transpose
         channel
     else
         map(i -> [i], channel)
@@ -117,17 +118,18 @@ function _adapt_matrix_type(T::Type, mat::M) where {M}
     elseif M <: AbstractMatrix
         map(row -> convert.(T, row), eachcol(mat))
     else
-        # handle simple vector format where each energy bin maps to a single value (e.g., for responses produced using ftflx2xsp)
+        # handle simple vector format where each energy bin maps to a single
+        # value (e.g., for responses produced using ftflx2xsp)
         map(val -> [convert(T, val)], mat)
     end
 end
 
-function read_rmf_matrix(table::TableHDU, header::RMFHeader, T::Type)
-    energy_low = convert.(T, read(table, "ENERG_LO"))
-    energy_high = convert.(T, read(table, "ENERG_HI"))
-    f_chan_raw = read(table, "F_CHAN")
-    n_chan_raw = read(table, "N_CHAN")
-    matrix_raw = read(table, "MATRIX")
+function read_rmf_matrix(table::FITSFiles.HDU, header::RMFHeader, T::Type)
+    energy_low = convert.(T, table.data.ENERG_LO)
+    energy_high = convert.(T, table.data.ENERG_HI)
+    f_chan_raw = table.data.F_CHAN
+    n_chan_raw = table.data.N_CHAN
+    matrix_raw = table.data.MATRIX
 
     # type stable: convert to common vector of vector format
     f_chan::Vector{Vector{Int}} = _translate_channel_array(f_chan_raw)
@@ -143,23 +145,16 @@ function read_rmf_matrix(table::TableHDU, header::RMFHeader, T::Type)
     )
 end
 
+# TODO: remove me
 function _read_fits_and_close(f, path)
-    fits = FITS(path)
-    res = try
-        f(fits)
-    catch e
-        throw(e)
-    finally
-        close(fits)
-    end
-    res
+    fits_file = FITSFiles.fits(path)
+    f(fits_file)
 end
 
 function read_rmf(path::String; T::Type = Float64)
     (header, rmf, channels::RMFChannels{T}) = _read_fits_and_close(path) do fits
         rmf_i = find_extension(fits, ["RESP", "MATRIX"])
         energy_i = find_extension(fits, "EBOUND")
-
         hdr = parse_rmf_header(fits[rmf_i])
         _rmf = read_rmf_matrix(fits[rmf_i], hdr, T)
         _channels = read_rmf_channels(fits[energy_i], T)
@@ -174,10 +169,13 @@ function find_extension(
     extension::T,
 ) where {T<:Union{<:AbstractString,<:AbstractVector}}
     # find the correct extensions
-    i::Int = 1
+    i::Int = 2
     for hdu in fits
-        header = read_header(hdu)
-        extname = get(header, "EXTNAME", "")
+        extname = get(hdu.cards, "EXTNAME", nothing)
+        if isnothing(extname)
+            continue
+        end
+
         if T <: AbstractString
             if contains(extname, extension)
                 return i
@@ -195,12 +193,11 @@ function find_extension(
 end
 
 function read_ancillary_response(path::String; T::Type = Float64)
-    fits = FITS(path)
     (bins_low, bins_high, effective_area) = _read_fits_and_close(path) do fits
         i = find_extension(fits, "RESP")
-        area::Vector{T} = convert.(T, read(fits[i], "SPECRESP"))
-        lo::Vector{T} = convert.(T, read(fits[i], "ENERG_LO"))
-        hi::Vector{T} = convert.(T, read(fits[i], "ENERG_HI"))
+        area::Vector{T} = convert.(T, fits[i].data.SPECRESP)
+        lo::Vector{T} = convert.(T, fits[i].data.ENERG_LO)
+        hi::Vector{T} = convert.(T, fits[i].data.ENERG_HI)
         (lo, hi, area)
     end
     SpectralFitting.AncillaryResponse{T}(bins_low, bins_high, effective_area)
@@ -292,16 +289,16 @@ function build_response_matrix!(
     end
 end
 
-function _read_exposure_time(header)
-    if get(header, "EXPOSURE", 0.0) != 0.0
-        return header["EXPOSURE"]
+function _get_exposure_time(header)
+    if haskey(header, "EXPOSURE")
+        return get(header, "EXPOSURE")
     end
-    if get(header, "TELAPSE", 0.0) != 0.0
-        return header["TELAPSE"]
+    if haskey(header, "TELAPSE")
+        return get(header, "TELAPSE")
     end
     # maybe time stops given
-    if (get(header, "TSTART", 0.0) != 0.0) && (get(header, "TSTOP", 0.0) != 0.0)
-        return header["TSTOP"] - header["TSTART"]
+    if (haskey(header, "TSTART")) && (haskey(header, "TSTOP"))
+        return get(header, "TSTOP") - get(header, "TSTART")
     end
     @warn "Cannot find or infer exposure time."
     0.0
@@ -313,44 +310,44 @@ end
 
 function read_spectrum(path; T::Type = Float64)
     info::SpectralFitting.Spectrum{T} = _read_fits_and_close(path) do fits
-        header = read_header(fits[2])
+        header = fits[2].cards
         # if not set, assume not poisson errors
         is_poisson = _string_boolean(get(header, "POISSERR", false))
         # read general infos
-        instrument = header["INSTRUME"]
-        telescope = header["TELESCOP"]
-        exposure_time = T(_read_exposure_time(header))
+        instrument = strip(get(header, "INSTRUME"))
+        telescope = strip(get(header, "TELESCOP"))
+        exposure_time = T(_get_exposure_time(header))
         background_scale = _get_stable(T, header, "BACKSCAL", one(T))
         area_scale = _get_stable(T, header, "AREASCAL", one(T))
         sys_error = _get_stable(T, header, "SYS_ERR", zero(T))
 
-        column_names = FITSIO.colnames(fits[2])
+        column_names = keys(fits[2].data)
 
-        channels::Vector{Int} = convert.(Int, read(fits[2], "CHANNEL"))
+        channels::Vector{Int} = convert.(Int, fits[2].data.CHANNEL)
 
-        quality::Vector{Int} = if "QUALITY" ∈ column_names
-            convert.(Int, read(fits[2], "QUALITY"))
+        quality::Vector{Int} = if :QUALITY ∈ column_names
+            convert.(Int, fits[2].data.QUALITY)
         else
             zeros(Int, size(channels))
         end
 
-        grouping::Vector{Int} = if "GROUPING" ∈ column_names
-            convert.(Int, read(fits[2], "GROUPING"))
+        grouping::Vector{Int} = if :GROUPING ∈ column_names
+            convert.(Int, fits[2].data.GROUPING)
         else
             ones(Int, size(channels))
         end
 
-        units::SpectralUnits.RateOrCount, values::Vector{T} = if "RATE" ∈ column_names
-            SpectralUnits._rate(), convert.(T, read(fits[2], "RATE"))
+        units::SpectralUnits.RateOrCount, values::Vector{T} = if :RATE ∈ column_names
+            SpectralUnits._rate(), convert.(T, fits[2].data.:RATE)
         else
-            SpectralUnits._counts(), convert.(T, read(fits[2], "COUNTS"))
+            SpectralUnits._counts(), convert.(T, fits[2].data.:COUNTS)
         end
 
-        stat, _errors = if "STAT_ERR" ∈ column_names
+        stat, _errors = if :STAT_ERR ∈ column_names
             if is_poisson
                 @warn "Both STAT_ERR column present and POISSERR flag set. Using STAT_ERR."
             end
-            SpectralFitting.ErrorStatistics.Numeric, convert.(T, read(fits[2], "STAT_ERR"))
+            SpectralFitting.ErrorStatistics.Numeric, convert.(T, fits[2].data.STAT_ERR)
         elseif is_poisson
             SpectralFitting.ErrorStatistics.Poisson,
             @. T(SpectralFitting.count_error(values, 1.0))
@@ -384,10 +381,12 @@ end
 
 function read_paths_from_spectrum(path::String)
     header = _read_fits_and_close(path) do fits
-        read_header(fits[2])
+        # TODO: FITSFiles will here parse the whole file just so we can get at
+        # the header, which seems a bit redundant...
+        fits[2].cards
     end
-    # extract path information from header
 
+    # extract path information from header
     possible_ext = splitext(path)[2]
     response_path = read_filename(header, "RESPFILE", path, ".rmf", ".rsp")
     ancillary_path = read_filename(header, "ANCRFILE", path, possible_ext)
@@ -399,7 +398,7 @@ function read_filename(header, entry, parent, exts...)
     data_directory = Base.dirname(parent)
     parent_name = basename(parent)
     if haskey(header, entry)
-        path::String = strip(header[entry])
+        path::String = strip(get(header, entry))
         if path == "NONE"
             return nothing
         end
@@ -437,7 +436,9 @@ export OGIP
 
 function read_fits_header(path; hdu = 2)
     OGIP._read_fits_and_close(path) do f
-        FITSIO.read_header(f[hdu])
+        # TODO: FITSFiles will here parse the whole file just so we can get at
+        # the header, which seems a bit redundant...
+        f[hdu].cards
     end
 end
 

@@ -24,9 +24,9 @@ function ogip_dataset(
     )
     header = read_fits_header(paths.spectrum; hdu = hdu)
 
-    obs_id = haskey(header, "OBS_ID") ? header["OBS_ID"] : "[no observation id]"
-    exposure_id = haskey(header, "EXP_ID") ? header["EXP_ID"] : "[no exposure id]"
-    object = haskey(header, "OBJECT") ? header["OBJECT"] : "[no object]"
+    obs_id = get(header, "OBS_ID", "[no observation id]")
+    exposure_id = get(header, "EXP_ID", "[no exposure id]")
+    object = get(header, "OBJECT", "[no object]")
 
     (; paths, obs_id, exposure_id, object, header)
 end
