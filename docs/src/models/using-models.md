@@ -139,3 +139,83 @@ Special care must be taken if new XSPEC models are wrapped to ensure the data is
 
 Model data may also alternatively be copied in _by-hand_ from a HEASoft XSPEC source directory. In this case, the location to copy the data to may be determined via `joinpath(SpectralFitting.LibXSPEC_jll.artifact_dir, "spectral", "modelData")`.
 
+## Writing XSPEC table models
+
+SpectralFitting.jl provides functionality to create XSPEC-compatible table models and write them to FITS files following the OGIP 92-009 specification. This allows you to generate custom table models that can be used both in SpectralFitting.jl and in XSPEC.
+
+```@docs
+write_table_model
+```
+
+### Example: Creating a custom table model
+
+Here's an example of creating a broken power law table model:
+
+```julia
+using SpectralFitting
+
+# Define energy grid (500 bins, logarithmically spaced)
+energy_bins = exp.(range(log(0.1), log(20.0), length=501))
+
+# Define parameter grids
+index1_grid = collect(range(1.5, 2.5, step=0.1))  # 11 values (lower energy index)
+break_energy_grid = exp.(range(log(0.5), log(10.0), length=20))  # 20 values, log-spaced
+index2_grid = collect(range(1.5, 2.5, step=0.1))  # 11 values (upper energy index)
+param_grids = (index1_grid, break_energy_grid, index2_grid)
+
+# Calculate spectra for each parameter combination
+n_energy_bins = length(energy_bins) - 1
+n_spectra = length(index1_grid) * length(break_energy_grid) * length(index2_grid)
+spectra = zeros(Float64, n_energy_bins, n_spectra)
+
+# Compute mid-point energies and bin widths
+E_mid = (energy_bins[1:end-1] .+ energy_bins[2:end]) ./ 2
+dE = energy_bins[2:end] .- energy_bins[1:end-1]
+
+# Fill spectra array (first parameter varies fastest)
+# Loop structure: index1 (fastest) -> E_break (middle) -> index2 (slowest)
+# This matches XSPEC parameter order: PhoIndex1, BreakE, PhoIndex2
+idx = 1
+for index2 in index2_grid
+    for E_break in break_energy_grid
+        for index1 in index1_grid
+            # Broken power law: E^(-index1) at low energies, E^(-index2) at high energies
+            # with continuity at the break energy
+            norm_factor = E_break^(index2 - index1)
+            # Evaluate at bin center and integrate over bin width
+            spectra[:, idx] = [(E < E_break ? E^(-index1) : norm_factor * E^(-index2)) * width
+                               for (E, width) in zip(E_mid, dE)]
+            idx += 1
+        end
+    end
+end
+
+# Specify interpolation method for each parameter
+# 0 = linear interpolation, 1 = logarithmic interpolation
+param_method = [Int32(0), Int32(1), Int32(0)]  # log interpolation for break energy
+
+# Specify interpolation method for each parameter
+# 0 = linear interpolation, 1 = logarithmic interpolation
+param_method = [Int32(0), Int32(1), Int32(0)]  # log interpolation for break energy
+
+# Write to FITS file
+write_table_model(
+    "bknpowerlaw_table.fits",
+    energy_bins,
+    param_grids,
+    spectra;
+    model_name = "BKNPOW",
+    param_names = ["PhoIndex1", "BreakE", "PhoIndex2"],
+    param_units = ["", "keV", ""],
+    model_units = "photons/cm^2/s/keV",
+    additive = true,
+    param_method = param_method
+)
+```
+
+The resulting FITS file can then be loaded as a table model:
+
+```julia
+tmd = TableModelData(Val(3), "bknpowerlaw_table.fits")
+```
+
