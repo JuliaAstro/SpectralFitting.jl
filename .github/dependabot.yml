@@ -5,3 +5,19 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "julia"
+    # Location of Julia projects
+    directories:
+      - "/"
+      - "/docs"
+      - "/lib/XSPECModels"
+      - "/lib/XSPECModels/test"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # Ignore package itself
+      - dependency-name: "SpectralFitting"
+      - dependency-name: "XSPECModels"
+    groups:
+      julia-patch-updates:
+        update-types: ["patch"]
