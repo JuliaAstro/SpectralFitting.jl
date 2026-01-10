@@ -15,3 +15,6 @@ XSPECModels = "e051c099-9e89-4e1f-aad2-39a4611ecf4d"
 [sources]
 SpectralFitting = {path = ".."}
 XSPECModels = {path = "../lib/XSPECModels"}
+
+[compat]
+Makie = "0.24.8"
