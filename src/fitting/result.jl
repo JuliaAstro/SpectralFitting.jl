@@ -64,36 +64,32 @@ function _pretty_print_result(io::IO, slice::FitResultSlice)
     print(io, "Model: ")
     printstyled(io, _model_name(model), color = :cyan)
     println(io)
-    print(io, " . Name : ")
 
     params, syms = _all_parameters_with_names(model)
     free_syms = syms[isfree.(params)]
 
     param_padding = max(10, maximum(length, free_syms)) + 1
+    value_padding = 10
 
-    for s in free_syms
-        print(io, rpad(s, param_padding))
-    end
+    print(io, "$(rpad(" . Name", param_padding)): ")
+    print(io, rpad("u", value_padding))
+    print(io, rpad("Δu", value_padding))
     println(io)
 
-    print(io, " . u    : ")
-    for v in slice.u
-        print(io, rpad(prettyfloat(v), param_padding))
-    end
-    println(io)
-
-    print(io, " . Δu   : ")
-    if !isnothing(slice.err)
-        for v in slice.err
-            print(io, rpad(prettyfloat(v), param_padding))
+    for i in eachindex(free_syms)
+        print(io, " . $(rpad(free_syms[i], param_padding - 3)): ")
+        print(io, rpad(prettyfloat(slice.u[i]), value_padding))
+        if !isnothing(slice.err)
+            print(io, rpad(prettyfloat(slice.err[i]), value_padding))
+        else
+            printstyled(io, rpad("nothing", value_padding), color = :gray)
         end
-    else
-        printstyled(io, "nothing", color = :gray)
+        println(io)
     end
     println(io)
 
     stat_sym = statistic_symbol(fit_statistic(slice.parent.config))
-    print(io, " . $(rpad(stat_sym, 6 - length(stat_sym))) : $(prettyfloat(slice.stats))")
+    print(io, " . $(rpad(stat_sym, param_padding - 3)): $(prettyfloat(slice.stats))")
     println(io)
 end
 
