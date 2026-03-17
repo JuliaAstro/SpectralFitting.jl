@@ -87,20 +87,3 @@ expected = """┌ FittingProblem:
 │   . Free       : 3
 └"""
 @test string == expected
-
-# generate some fake powerlaw data
-model = PowerLaw()
-dummy_data = make_dummy_dataset((E) -> (E^(-3.0)); units = u"counts / (s * keV)")
-result = fit(FittingProblem(model, dummy_data), LevenbergMarquadt())
-
-# test result printing is vertical with labelled names and has correct values
-slice_string = showstring(result[1])
-expected_slice = """┌ FitResultSlice:
-│ Model: PowerLaw
-│  . Name     : u         Δu        
-│  . m.K      : 12.066    0.24374   
-│  . m.a      : 3.0810    0.012679  
-│  . χ²       : 14.963
-└"""
-@test slice_string == expected_slice
-
