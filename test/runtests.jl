@@ -43,6 +43,7 @@ end
 
 @testset "io" verbose = true begin
     # include("io/test-printing.jl")
+    include("io/test-result-printing.jl")
     if has_test_dir
         include("datasets/test-ogip.jl")
     else
