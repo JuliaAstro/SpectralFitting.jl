@@ -68,7 +68,7 @@ function _pretty_print_result(io::IO, slice::FitResultSlice)
     params, syms = _all_parameters_with_names(model)
     free_syms = syms[isfree.(params)]
 
-    param_padding = max(10, maximum(length, free_syms)) + 1
+    param_padding = max(10, maximum(length, free_syms) + 3) + 1
     value_padding = 10
 
     print(io, "$(rpad(" . Name", param_padding)): ")
