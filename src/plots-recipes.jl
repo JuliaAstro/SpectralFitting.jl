@@ -53,7 +53,9 @@ end
 @recipe function _plotting_func(slice::FitResultSlice)
     label -->
     statistic_symbol(fit_statistic(slice.parent.config)) *
-    Printf.@sprintf("=%.2f", slice.stats)
+    Printf.@sprintf("=%.2f, ", slice.stats) *
+    reduced_statistic_symbol(fit_statistic(slice.parent.config)) *
+    Printf.@sprintf("=%.2f", reduced_statistic(slice))
     seriestype --> :stepmid
     x = plotting_domain(slice)
     y = calculate_objective!(slice, slice.u)
