@@ -86,3 +86,4 @@ using Aqua
 # little bit of aqua
 Aqua.test_undefined_exports(SpectralFitting)
 Aqua.test_unbound_args(SpectralFitting)
+include("test_multi_dataset.jl")
