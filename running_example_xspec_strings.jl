@@ -71,7 +71,7 @@ println("="^60)
 println("  XSPEC Model String Demo — Issue #187")
 println("="^60)
 
-println("\n📌 Demo 1: Parsing XSPEC strings → Julia Expr\n")
+println("\n Demo 1: Parsing XSPEC strings → Julia Expr\n")
 cases = [
     ("powerlaw",                          "Single additive model"),
     ("phabs*powerlaw",                    "AGN: phabs=PhotoelectricAbsorption"),
@@ -92,7 +92,7 @@ for (s,desc) in cases
 end
 
 println("─"^60)
-println("\n📌 Demo 2: Precedence (* > +) — astrophysically critical!\n")
+println("\n Demo 2: Precedence (* > +) — astrophysically critical!\n")
 eA=parse_xspec_model_string("phabs*powerlaw+bbody")
 eB=parse_xspec_model_string("phabs*(powerlaw+bbody)")
 println("  A: \"phabs*powerlaw+bbody\"  → $eA")
@@ -100,35 +100,35 @@ println("     [bbody is UNABSORBED]")
 println("  B: \"phabs*(powerlaw+bbody)\" → $eB")
 println("     [BOTH components absorbed]")
 @assert eA!=eB "ERROR: these should be different!"
-println("\n  ✅ Correctly different — precedence works!")
+println("\n   Correctly different — precedence works!")
 
 println("\n─"^60)
-println("\n📌 Demo 3: Aliases and case-insensitivity\n")
+println("\n Demo 3: Aliases and case-insensitivity\n")
 @assert parse_xspec_model_string("po")==parse_xspec_model_string("powerlaw")
-println("  ✅ po == powerlaw")
+println("   po == powerlaw")
 @assert parse_xspec_model_string("gaus")==parse_xspec_model_string("gaussian")
-println("  ✅ gaus == gaussian")
+println("   gaus == gaussian")
 @assert parse_xspec_model_string("PHABS*POWERLAW")==parse_xspec_model_string("phabs*powerlaw")
-println("  ✅ PHABS*POWERLAW == phabs*powerlaw")
+println("   PHABS*POWERLAW == phabs*powerlaw")
 @assert parse_xspec_model_string("TbAbs*PowerLaw")==parse_xspec_model_string("tbabs*powerlaw")
-println("  ✅ TbAbs*PowerLaw == tbabs*powerlaw")
+println("   TbAbs*PowerLaw == tbabs*powerlaw")
 
 println("\n─"^60)
-println("\n📌 Demo 4: Error handling\n")
+println("\n Demo 4: Error handling\n")
 for (s,reason) in [("apec","not in package"),("*powerlaw","leading *"),
                    ("powerlaw*","trailing *"),("","empty")]
-    try parse_xspec_model_string(s); println("  ❌ \"$s\" should error!")
-    catch e; println("  ✅ \"$s\" → $(sprint(showerror,e)[1:min(60,end)])…")
+    try parse_xspec_model_string(s); println("  \"$s\" should error!")
+    catch e; println("   \"$s\" → $(sprint(showerror,e)[1:min(60,end)])…")
     end
 end
 
 println("\n─"^60)
-println("\n📌 Demo 5: XSPEC_MODEL_NAMES ($(length(XSPEC_MODEL_NAMES)) entries)\n")
+println("\n Demo 5: XSPEC_MODEL_NAMES ($(length(XSPEC_MODEL_NAMES)) entries)\n")
 for (k,v) in sort!(collect(XSPEC_MODEL_NAMES))
     println("  \"$k\" → $v")
 end
 
 println()
 println("="^60)
-println("  ✅  ALL DEMOS PASSED — implementation correct!")
+println("    ALL DEMOS PASSED — implementation correct!")
 println("="^60)
