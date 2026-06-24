@@ -20,4 +20,5 @@ XSPECModels = {path = "../lib/XSPECModels"}
 Makie = "0.24"
 PairPlots = "3"
 StatsPlots = "0.15"
+Surrogates = "7.5.0"
 UnicodePlots = "3"
