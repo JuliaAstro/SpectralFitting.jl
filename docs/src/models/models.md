@@ -60,4 +60,3 @@ end
 energy = collect(range(0.1, 20.0, 100))
 plotmodel(energy, PowerLaw())
 ```
-
