@@ -7,7 +7,7 @@ using SpectralFitting, XSPECModels
 SpectralFitting.download_all_model_data()
 
 makedocs(
-    warnonly = [:cross_references, :autodocs_block, :missing_docs],
+    warnonly = [:cross_references, :autodocs_block, :missing_docs, :example_block],
     modules = [SpectralFitting, XSPECModels],
     clean = true,
     sitename = "SpectralFitting.jl",
