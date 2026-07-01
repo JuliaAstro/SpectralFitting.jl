@@ -17,6 +17,7 @@ SpectralFitting = {path = ".."}
 XSPECModels = {path = "../lib/XSPECModels"}
 
 [compat]
+Documenter = "1.17.0"
 Makie = "0.24"
 PairPlots = "3"
 StatsPlots = "0.15"
