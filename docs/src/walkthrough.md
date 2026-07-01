@@ -11,7 +11,7 @@ This example walkthrough is the SpectralFitting.jl equivalent of the [Walk throu
 
 The first thing we want to do is load our datasets. Unlike in XSPEC, we have no requirement of being in the same directory as the data, or even that all of the response, ancillary, and spectral files be in the same place. For simplicity, we'll assume they are:
 
-!!! note 
+!!! note
     Be sure to set `DATADIR` pointing to the directory where you keep the walkthrough data.
 
 ```@example walk
@@ -20,10 +20,10 @@ using SpectralFitting, XSPECModels, Plots
 DATADIR = "..."
 DATADIR = length(get(ENV, "CI", "")) > 0 ? @__DIR__() * "/../../ex-datadir" : expanduser("~/developer/jl/ex-datadir") # hide
 spec1_path = joinpath(DATADIR, "s54405.pha")
-data = OGIPDataset(spec1_path) 
+data = OGIPDataset(spec1_path)
 ```
 
-This will print a little card about our data, which shows us what else SpectralFitting.jl loaded. We can see the `Primary Spectrum`, the `Response`, but that the `Background` and `Ancillary` response files are missing. That's to be expected, since we don't have those files in the dataset. 
+This will print a little card about our data, which shows us what else SpectralFitting.jl loaded. We can see the `Primary Spectrum`, the `Response`, but that the `Background` and `Ancillary` response files are missing. That's to be expected, since we don't have those files in the dataset.
 
 We can check what paths it used by looking at
 ```@example walk
@@ -48,7 +48,7 @@ plot(data, ylims = (0.001, 2.0), yscale = :log10, xscale = :log10)
 
 Note that when there are no negative axes, the scale defaults to log on the plot unless otherwise specified.
 
-Next we want to specify a model to fit to this data. Models that are prefixed with `XS_` are models that are linked from the XSPEC model library, provided via [LibXSPEC_jll](https://github.com/astro-group-bristol/LibXSPEC_jll.jl). For a full list of the models, see [Models library](@ref).
+Next we want to specify a model to fit to this data. Models that are prefixed with `XS_` are models that are linked from the XSPEC model library, provided via [LibXSPEC\_jll](https://github.com/astro-group-bristol/LibXSPEC_jll.jl). For a full list of the models, see [Models library](@ref).
 
 !!! warning
     It is advised to **use the Julia implemented models**. This allows various calculations to benefit from automatic differentiation, efficient multi-threading, GPU offloading, and various other useful things, see [Why & how](@ref).
@@ -100,9 +100,9 @@ result = fit(prob, LevenbergMarquadt())
 Here we can see the parameter vector, the estimated error on each parameter, and the measure of the fit statistic (here chi squared). We can overplot our result on our data easily:
 
 ```@example walk
-plot(data, 
-    ylims = (0.001, 2.0), 
-    xscale = :log10, 
+plot(data,
+    ylims = (0.001, 2.0),
+    xscale = :log10,
     yscale = :log10
 )
 plot!(result)
@@ -116,9 +116,9 @@ result = fit(prob, LevenbergMarquadt())
 ```
 
 ```@example walk
-plot(data, 
-    ylims = (0.001, 2.0), 
-    xscale = :log10, 
+plot(data,
+    ylims = (0.001, 2.0),
+    xscale = :log10,
     yscale = :log10
 )
 plot!(result, label = "PowerLaw")
@@ -152,7 +152,7 @@ We can modify our model by accessing properties from the model card and writing 
 
 ```@example walk
 calc_flux = XS_CalculateFlux(
-    E_min = FitParam(0.2, frozen = true), 
+    E_min = FitParam(0.2, frozen = true),
     E_max = FitParam(2.0, frozen = true),
     log10Flux = FitParam(-10.3, lower_limit = -100, upper_limit = 100),
 )
@@ -177,9 +177,9 @@ Now to fit we can repeat the above procedure, and even overplot the region of fl
 ```@example walk
 flux_result = fit(flux_problem, LevenbergMarquadt())
 
-plot(data, 
-    ylims = (0.001, 2.0), 
-    xscale = :log10, 
+plot(data,
+    ylims = (0.001, 2.0),
+    xscale = :log10,
     yscale = :log10
 )
 plot!(flux_result)
@@ -202,9 +202,9 @@ result2 = fit!(prob2, LevenbergMarquadt())
 Let's overplot this result against our power law result:
 
 ```@example walk
-dp = plot(data, 
-    ylims = (0.001, 2.0), 
-    xscale = :log10, 
+dp = plot(data,
+    ylims = (0.001, 2.0),
+    xscale = :log10,
     yscale = :log10,
     legend = :bottomleft,
 )
@@ -229,7 +229,7 @@ Let's take a look at the residuals of these three models. There are utility meth
 ```@example walk
 function calc_residuals(result)
     # select which result we want (only have one, but for generalisation to multi-model fits)
-    r = result[1] 
+    r = result[1]
     y = calculate_objective!(r, r.u)
     obj, var = get_objective(r), get_objective_variance(r)
     @. (obj - y) / sqrt(var)
@@ -254,9 +254,9 @@ We can do all that plotting work with some of the builtin recipes:
 
 ```@example walk
 function plot_result(data, results...)
-    p1 = plot(data, 
-        ylims = (0.001, 2.0), 
-        xscale = :log10, 
+    p1 = plot(data,
+        ylims = (0.001, 2.0),
+        xscale = :log10,
         yscale = :log10,
         legend = :bottomleft,
     )
@@ -292,7 +292,7 @@ And fitting:
 
 ```@example walk
 bbpl_result = fit(
-    FittingProblem(bbpl_model => data), 
+    FittingProblem(bbpl_model => data),
     LevenbergMarquadt()
 )
 ```
@@ -317,7 +317,7 @@ Fitting:
 
 ```@example walk
 bbpl_result2 = fit(
-    FittingProblem(bbpl_model => data), 
+    FittingProblem(bbpl_model => data),
     LevenbergMarquadt()
 )
 ```
