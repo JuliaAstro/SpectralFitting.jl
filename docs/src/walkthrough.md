@@ -57,7 +57,7 @@ We will start by fitting a photoelectric absorption model that acts on a power l
 
 !!! note
     To see information about a model, use the `?` in the Julia REPL:
-    ```julia
+    ```julia-repl
     julia> ?PowerLaw
     XS_PowerLaw(K, a)
 
