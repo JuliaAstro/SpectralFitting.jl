@@ -10,7 +10,7 @@ end
 function Base.show(io::IO, ::MIME"text/plain", @nospecialize(cache::ModelFittingCache))
     println(
         io,
-        "ModelFittingCache[#model_ouput=$(size(cache.model_output.du)),#objective_output=$(size(cache.objective_output.du))]",
+        "ModelFittingCache[#model_output=$(size(cache.model_output.du)),#objective_output=$(size(cache.objective_output.du))]",
     )
 end
 

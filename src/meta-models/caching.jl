@@ -159,7 +159,7 @@ function _inner_invokemodel!(
     for i = start:length(p_syms)
         param_cache[i] = getproperty(backing_model(model), p_syms[i])
     end
-    # set the ouput
+    # set the output
     @. output = output_cache
 end
 

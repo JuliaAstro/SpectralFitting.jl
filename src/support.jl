@@ -71,7 +71,7 @@ bins, with the objective being the value in that bin. This means
 ```julia
 length(objective) + 1== length(domain)
 ```
-Note that the _contiguous_ qualifer is to mean there is no gaps in the bins, and that
+Note that the _contiguous_ qualifier is to mean there is no gaps in the bins, and that
 ```math
 \\Delta E_i = E_{i+1} - E_{i}
 ```
@@ -102,7 +102,7 @@ function preferred_support(x)
             return layout
         end
     end
-    error("No prefered support for $(typeof(x))")
+    error("No preferred support for $(typeof(x))")
 end
 
 """

@@ -1,7 +1,7 @@
 # Walkthrough
 
 !!! warning
-    This walk through has not been fleshed out with the relevant astrophysical content yet (for example, whether a fit is good, what the different parameters mean, etc.), and so assumes some familarity with spectral fitting in general.
+    This walk through has not been fleshed out with the relevant astrophysical content yet (for example, whether a fit is good, what the different parameters mean, etc.), and so assumes some familiarity with spectral fitting in general.
 
     It is also not yet complete, nor a faithful illustration of everything SpectralFitting.jl can do. It serves to illustrate similarities and differences in syntax between SpectralFitting.jl and XSPEC.
 
@@ -74,7 +74,7 @@ We will start by fitting a photoelectric absorption model that acts on a power l
 model = PhotoelectricAbsorption() * PowerLaw()
 ```
 
-If we want to specify paramters of our model at instantiation, we can do that with
+If we want to specify parameters of our model at instantiation, we can do that with
 ```@example walk
 model = PhotoelectricAbsorption() * PowerLaw(a = FitParam(3.0))
 ```
@@ -160,7 +160,7 @@ calc_flux = XS_CalculateFlux(
 flux_model = model.m1 * calc_flux(model.a1)
 ```
 
-Since we used the old model to define the new one, our best fit values are automatically copied into the new model. We can now freeze the normalization, as we are using the flux integrating model to scale the powerlaw component:
+Since we used the old model to define the new one, our best fit values are automatically copied into the new model. We can now freeze the normalization, as we are using the flux integrating model to scale the power-law component:
 
 ```@example walk
 flux_model.a1.K.frozen = true
@@ -330,7 +330,7 @@ plot!(bbpl_result2)
 
 ## MCMC
 
-We can use libraries like [Pidgeons.jl](https://pigeons.run/dev/) or [Turing.jl](https://turinglang.org/) to perform Bayesian inference on our paramters. SpectralFitting.jl is designed with *BYOO* (Bring Your Own Optimizer) in mind, and so makes it relatively easy to get at the core fitting functions to be used with other packages.
+We can use libraries like [Pigeons.jl](https://pigeons.run/) or [Turing.jl](https://turinglang.org/) to perform Bayesian inference on our parameters. SpectralFitting.jl is designed with *BYOO* (Bring Your Own Optimizer) in mind, and so makes it relatively easy to get at the core fitting functions to be used with other packages.
 
 Let's use Turing.jl here, which means we'll also want to use [StatsPlots.jl](https://docs.juliaplots.org/dev/generated/statsplots/) to plot our walker chains.
 ```@example walk
@@ -345,7 +345,7 @@ Let's go back to our first model:
 model
 ```
 
-This gave a pretty good fit but the errors on our paramters are not well defined, being estimated only from a convariance matrix in the least-squares solver. MCMC can give us better confidence regions, and even help us uncover dependencies between paramters. Here we'll take all of our parameters and convert them into a Turing.jl model with use of their macro:
+This gave a pretty good fit but the errors on our parameters are not well defined, being estimated only from a convariance matrix in the least-squares solver. MCMC can give us better confidence regions, and even help us uncover dependencies between parameters. Here we'll take all of our parameters and convert them into a Turing.jl model with use of their macro:
 
 ```@example walk
 @model function mcmc_model(objective, stddev, f)
@@ -372,13 +372,13 @@ mm = mcmc_model(
 nothing # hide
 ```
 
-That's it! We're now ready to sample our model. Since all our models are implemented in Julia, we can use gradient-boosted samplers with automatic differentiation, such as NUTS. We'll walk 5000 itterations, just as a small example:
+That's it! We're now ready to sample our model. Since all our models are implemented in Julia, we can use gradient-boosted samplers with automatic differentiation, such as NUTS. We'll walk 5000 iterations, just as a small example:
 
 ```@example walk
 chain = sample(mm, NUTS(), 5_000)
 ```
 
-In the printout we see summary statistics about or model, in this case that it has converged well (`rhat` close to 1 for all parameters), better estimates of the standard deviation, and various quantiles. We can plot our chains to make sure the caterpillers are healthy and fuzzy, making use of StatsPlots.jl recipes:
+In the printout we see summary statistics about or model, in this case that it has converged well (`rhat` close to 1 for all parameters), better estimates of the standard deviation, and various quantiles. We can plot our chains to make sure the caterpillars are healthy and fuzzy, making use of StatsPlots.jl recipes:
 
 ```@example walk
 plot(chain)

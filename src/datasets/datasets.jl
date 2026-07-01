@@ -24,7 +24,7 @@ specified by the caller.
 - [`make_objective`](@ref)
 - [`make_domain_variance`](@ref)
 - [`make_model_domain`](@ref)
-- [`make_ouput_domain`](@ref)
+- [`make_output_domain`](@ref)
 
 Additionally there is an objective transformer that transforms the output of the
 model onto the `output` domain:
@@ -61,7 +61,7 @@ Returns the array used as the target for model fitting. The array must
 correspond to the data [`AbstractDataLayout`](@ref) specified by the `layout`
 parameter.
 
-In as far as it can be guarunteed, the memory in the returned array will not be
+In as far as it can be guaranteed, the memory in the returned array will not be
 mutated by any fitting procedures.
 
 Domain for this objective should be returned by [`make_model_domain`](@ref).

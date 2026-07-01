@@ -6,7 +6,7 @@ function _convolve_implementation!(
     # Based on https://discourse.julialang.org/t/97658/15
     J = length(vec_A)
     K = length(kernel)
-    @assert length(output) == J + K - 1 "Ouput is $(length(output)); should be $(J + K - 1)"
+    @assert length(output) == J + K - 1 "Output is $(length(output)); should be $(J + K - 1)"
 
     # do the kernel's side first
     for i = 1:(K-1)
