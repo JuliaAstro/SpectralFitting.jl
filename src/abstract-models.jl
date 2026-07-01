@@ -75,7 +75,7 @@ new model is as follows:
 
 ```julia
 struct MyNewModel{T} <: AbstractSpectralModel{T,Additive}
-    "Normalisation (required by Additive kinds)
+    "Normalisation (required by Additive kinds)"
     K::T
     "First parameter"
     p1::T
