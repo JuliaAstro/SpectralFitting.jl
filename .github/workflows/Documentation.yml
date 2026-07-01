@@ -22,16 +22,7 @@ jobs:
       - uses: julia-actions/setup-julia@v3
         with:
           version: "1"
-      - uses: actions/cache@v6
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+      - uses: julia-actions/cache@v3
       - name: Setup data directories
         run: |
           wget "https://www.star.bristol.ac.uk/fergus/spectral-fitting/ci-data/1E-1048-5937.tar"
@@ -51,6 +42,9 @@ jobs:
       - name: Precompile environment
         shell: julia --color=yes --project=docs {0}
         run: import Pkg; Pkg.precompile()
+      - name: Populate SpectralFitting.jl model data
+        shell: julia --color=yes --project=docs {0}
+        run: import SpectralFitting; SpectralFitting.download_all_model_data()
       - name: Build and deploy documentation
         uses: julia-actions/julia-docdeploy@v1
         env:
