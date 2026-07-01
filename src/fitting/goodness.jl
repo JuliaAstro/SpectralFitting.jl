@@ -1,13 +1,13 @@
 function goodness(
-    result::FitResultSlice,
-    u,
-    σ;
-    N = 1000,
-    stat = ChiSquared(),
-    distribution = Distributions.Normal,
-    seed = abs(randint()),
-    kwargs...,
-)
+        result::FitResultSlice,
+        u,
+        σ;
+        N = 1000,
+        stat = ChiSquared(),
+        distribution = Distributions.Normal,
+        seed = abs(randint()),
+        kwargs...,
+    )
     x = similar(u)
     measures = zeros(eltype(u), N)
     config = deepcopy(result.parent.config)
@@ -41,14 +41,14 @@ function goodness(
     end
 
     perc = 100 * count(<(result.stats), measures) / N
-    perc, measures
+    return perc, measures
 end
 
 goodness(result::FitResult, args...; kwargs...) = goodness(result[1], args...; kwargs...)
 
 function goodness(result::FitResultSlice, σu = result.err; kwargs...)
     @assert !isnothing(σu) "σ cannot be nothing, else algorithm has no parameter intervals to sample from."
-    goodness(result, result.u, σu; kwargs...)
+    return goodness(result, result.u, σu; kwargs...)
 end
 
 export goodness

@@ -1,7 +1,6 @@
 using Test, SpectralFitting
 
 
-
 # single
 
 model = DummyAdditive()
@@ -60,7 +59,7 @@ SpectralFitting.update_free_parameters!(cache, [2.0, 0.5])
 
 outputs = allocate_model_output(model, domain)
 output = invokemodel!(outputs, domain, model, cache)
-@test sum(output) ≈ 1666.665 atol=1e-4
+@test sum(output) ≈ 1666.665 atol = 1.0e-4
 
 model = DummyAdditive()
 

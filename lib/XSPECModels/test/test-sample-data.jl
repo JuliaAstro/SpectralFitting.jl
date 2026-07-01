@@ -11,7 +11,7 @@ function prepare_data!(data, low, high)
     regroup!(data)
     normalize!(data)
     mask_energies!(data, low, high)
-    data
+    return data
 end
 
 # path to the data directory
@@ -30,9 +30,9 @@ result[1].u
 # todo: check the chi2 calculations
 @test sum(result.stats) ≈ 484.5 atol = 0.1
 
-@test result.u ≈ [0.13760, 0.010446, 1.8422, 8.9215e-05, 6.5673] rtol = 1e-3
+@test result.u ≈ [0.1376, 0.010446, 1.8422, 8.9215e-5, 6.5673] rtol = 1.0e-3
 xspec_u = [0.140182, 1.048e-2, 1.84862, 9.25e-5, 6.559]
-@test result.u ≈ xspec_u rtol = 1e-2
+@test result.u ≈ xspec_u rtol = 1.0e-2
 
 data2 = NuStarData(joinpath(testdir, "nustar/nu60001047002A01_sr_grp_simple.pha"))
 prepare_data!(data2, 2.0, 14.0)
@@ -47,7 +47,7 @@ result = fit(prob, LevenbergMarquadt())
     1.9972614257180774,
     0.0002059507411466161,
     6.499205973061382,
-] rtol = 1e-2
+] rtol = 1.0e-2
 
 # test joint
 prob = FittingProblem(model => data1, model => data2)
@@ -74,7 +74,7 @@ prob = FittingProblem(model, data1_nobkg)
 result = fit(prob, LevenbergMarquadt())
 # these have been checked and are the same as XSPEC
 @test sum(result.stats) ≈ 496.0927976691264 atol = 0.1
-@test result.u ≈ [0.1395103, 0.01047537, 1.848017, 9.18112e-5, 6.55961] rtol = 1e-3
+@test result.u ≈ [0.1395103, 0.01047537, 1.848017, 9.18112e-5, 6.55961] rtol = 1.0e-3
 
 # try different domain entirely
 set_domain!(data1, collect(range(0.01, 20.0, 1000)))
@@ -87,4 +87,4 @@ prob = FittingProblem(model, data1)
 result = fit(prob, LevenbergMarquadt())
 # these have been checked and are the same as XSPEC
 @test sum(result.stats) ≈ 466.6477135605372 atol = 0.1
-@test result.u ≈ [0.13429082, 0.010527296, 1.8470323, 9.076584e-5, 6.574072] rtol = 1e-3
+@test result.u ≈ [0.13429082, 0.010527296, 1.8470323, 9.076584e-5, 6.574072] rtol = 1.0e-3

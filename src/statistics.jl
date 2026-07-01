@@ -15,7 +15,7 @@ function measure(::Cash, S, ŷ, _) # ignores variance
     # avoid errors in log
     any(<(0), ŷ) && return Inf
     any(<(0), S) && return Inf
-    2 * sum(@.(ŷ - S + S * (log(S) - log(ŷ))))
+    return 2 * sum(@.(ŷ - S + S * (log(S) - log(ŷ))))
 end
 
 export ChiSquared, Cash, measure

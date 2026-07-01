@@ -1,6 +1,6 @@
 export FitResult, update_model!, get_objective, get_objective_variance
 
-struct FitResult{Config<:FittingConfig,U,Err,T,Sol}
+struct FitResult{Config <: FittingConfig, U, Err, T, Sol}
     config::Config
     u::U
     err::Err
@@ -18,7 +18,7 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(result::FitResult))
 
     println(buff_c, "FitResult:")
     print(buff_c, " ")
-    for i = 1:length(result.stats)
+    for i in 1:length(result.stats)
         slice = result[i]
 
         buff2 = IOBuffer()
@@ -33,14 +33,15 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(result::FitResult))
     text = String(take!(buff))
     print(
         io,
-        encapsulate(text) *
+        encapsulate(text),
         "Σ$(statistic_symbol(fit_statistic(result.config))) = $(total_stat)",
     )
+    return
 end
 
 calculate_objective!(result::FitResult, u0) = calculate_objective!(result.config, u0)
 
-struct FitResultSlice{P<:FitResult,U,Err,T}
+struct FitResultSlice{P <: FitResult, U, Err, T}
     index::Int
     parent::P
     u::U
@@ -57,6 +58,7 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(slice::FitResultSli
 
     text = String(take!(buff))
     print(io, encapsulate(text))
+    return
 end
 
 function _pretty_print_result(io::IO, slice::FitResultSlice)
@@ -91,6 +93,7 @@ function _pretty_print_result(io::IO, slice::FitResultSlice)
     stat_sym = statistic_symbol(fit_statistic(slice.parent.config))
     print(io, " . $(rpad(stat_sym, param_padding - 3)): $(prettyfloat(slice.stats))")
     println(io)
+    return
 end
 
 function Base.getindex(result::FitResult, i)
@@ -107,7 +110,7 @@ function Base.getindex(result::FitResult, i)
     all_parameters = update_free_parameters!(result.config.parameter_cache, result.u)
     u_slice = all_parameters[bindings][mask]
 
-    FitResultSlice(i, result, u_slice, err_slice, result.stats[i])
+    return FitResultSlice(i, result, u_slice, err_slice, result.stats[i])
 end
 
 function calculate_objective!(slice::FitResultSlice, u0)
@@ -119,7 +122,7 @@ function calculate_objective!(slice::FitResultSlice, u0)
     # update the free parameters
     @views all_parameters[I][mask] .= u0
 
-    calculate_objective!(slice.parent.config, all_parameters, slice.index)
+    return calculate_objective!(slice.parent.config, all_parameters, slice.index)
 end
 
 _get_data_cache(slice::FitResultSlice) = slice.parent.config.data_cache[slice.index]
@@ -136,16 +139,16 @@ function finalize_result(config::FittingConfig, params, sol; σparams = nothing)
         obj = measure_objective!(config, params, i)
     end |> collect
 
-    FitResult(config, params, σparams, measures, sol)
+    return FitResult(config, params, σparams, measures, sol)
 end
 
 function measure(s::AbstractStatistic, slice::FitResultSlice, u = slice.u)
     ŷ = calculate_objective!(slice, u)
-    measure(s, get_objective(slice), ŷ, get_objective_variance(slice))
+    return measure(s, get_objective(slice), ŷ, get_objective_variance(slice))
 end
 
 function measure(stat::AbstractStatistic, result::FitResult, args...; kwargs...)
-    measure(stat, result[1], args...; kwargs...)
+    return measure(stat, result[1], args...; kwargs...)
 end
 
 update_model!(model::AbstractSpectralModel, result::FitResult) =
@@ -154,17 +157,17 @@ update_model!(model::AbstractSpectralModel, result::FitResult) =
 function residuals(slice::FitResultSlice)
     y = calculate_objective!(slice, slice.u)
     obj, var = get_objective(slice), get_objective_variance(slice)
-    @. (obj - y) / sqrt(var)
+    return @. (obj - y) / sqrt(var)
 end
 
 function update_model!(model::AbstractSpectralModel, result::FitResultSlice)
     all_params = update_free_parameters!(result.parent.config.parameter_cache, result.u)
     for (p, r) in @views zip(
-        parameter_vector(model),
-        all_params[result.parent.config.parameter_bindings[result.index]],
-    )
+            parameter_vector(model),
+            all_params[result.parent.config.parameter_bindings[result.index]],
+        )
 
         set_value!(p, r)
     end
-    model
+    return model
 end

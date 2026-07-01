@@ -23,34 +23,34 @@ sm = SurrogateSpectralModel(
 The `lower_bounds` and `upper_bounds` must be tuples in the form `(E, params...)`, where `E`
 denotes the bounds on the energy range to train over.
 """
-struct SurrogateSpectralModel{T,K,N,S,Symbols} <: AbstractSpectralModel{T,K}
+struct SurrogateSpectralModel{T, K, N, S, Symbols} <: AbstractSpectralModel{T, K}
     surrogate::S
-    params::NTuple{N,T}
+    params::NTuple{N, T}
 end
 
 Base.copy(s::SurrogateSpectralModel) = typeof(s)(deepcopy(s.surrogate), deepcopy(s.params))
 
 function SurrogateSpectralModel(
-    ::K,
-    surrogate::S,
-    params::Tuple,
-    symbols,
-) where {K<:AbstractSpectralModelKind,S}
+        ::K,
+        surrogate::S,
+        params::Tuple,
+        symbols,
+    ) where {K <: AbstractSpectralModelKind, S}
     P = typeof(params)
     N = length(P.parameters)
     T = first(P.parameters)
-    SurrogateSpectralModel{T,K,N,S,symbols}(surrogate, params)
+    return SurrogateSpectralModel{T, K, N, S, symbols}(surrogate, params)
 end
 
-parameter_count(::SurrogateSpectralModel{T,K,N}) where {T,K,N} = N
-parameter_names(::SurrogateSpectralModel{T,K,N,S,Symbols}) where {T,K,N,S,Symbols} = Symbols
+parameter_count(::SurrogateSpectralModel{T, K, N}) where {T, K, N} = N
+parameter_names(::SurrogateSpectralModel{T, K, N, S, Symbols}) where {T, K, N, S, Symbols} = Symbols
 parameter_vector(model::SurrogateSpectralModel) = collect(model.params)
 
 function remake_with_parameters(
-    model::SurrogateSpectralModel{<:FitParam{T},K,N,S,Symbols},
-    parameters::Tuple,
-) where {T,K,N,S,Symbols}
-    SurrogateSpectralModel{T,K,N,S,Symbols}(model.surrogate, parameters)
+        model::SurrogateSpectralModel{<:FitParam{T}, K, N, S, Symbols},
+        parameters::Tuple,
+    ) where {T, K, N, S, Symbols}
+    return SurrogateSpectralModel{T, K, N, S, Symbols}(model.surrogate, parameters)
 end
 
 @fastmath function invoke!(output, domain, model::SurrogateSpectralModel{T}) where {T}
@@ -83,18 +83,18 @@ Note that upper- and lower-bounds should be in the form `(E, params...)`, where 
 energy and `params` are the model parameters.
 """
 function optimize_accuracy!(
-    surr::AbstractSurrogate,
-    obj::Function,
-    lb,
-    ub;
-    sample_type::SamplingAlgorithm = SobolSample(),
-    maxiters = 50,
-    verbose = false,
-)
+        surr::AbstractSurrogate,
+        obj::Function,
+        lb,
+        ub;
+        sample_type::SamplingAlgorithm = SobolSample(),
+        maxiters = 50,
+        verbose = false,
+    )
     samples = _initial_space(obj, lb, ub, sample_type, maxiters * 10)
     X = samples.x
     y = samples.y
-    for epoch = 1:maxiters
+    for epoch in 1:maxiters
         ŷ = surr.(X)
         σ = map(eachindex(y)) do i
             surrogate_error(y[i], ŷ[i])
@@ -105,11 +105,11 @@ function optimize_accuracy!(
         end
         Surrogates.update!(surr, X[i], y[i])
     end
-    surr
+    return surr
 end
 
 function surrogate_error(y, ŷ)
-    sum(j -> (y[j] - ŷ[j])^2, eachindex(y))
+    return sum(j -> (y[j] - ŷ[j])^2, eachindex(y))
 end
 
 """
@@ -123,8 +123,9 @@ returning a single flux value.
 function wrap_model_as_objective(model::AbstractSpectralModel, domain)
     outputs = allocate_model_output(model, domain)
     function _surr_objective(params)
-        invokemodel!(outputs, domain, model, [params...]) |> copy
+        return invokemodel!(outputs, domain, model, [params...]) |> copy
     end
+    return _surr_objective
 end
 
 function _initial_space(obj, lb::NTuple{N}, ub::NTuple{N}, sample_type, n) where {N}
@@ -134,10 +135,10 @@ function _initial_space(obj, lb::NTuple{N}, ub::NTuple{N}, sample_type, n) where
     else
         xs
     end
-    (; x = _xs, y = obj.(_xs))
+    return (; x = _xs, y = obj.(_xs))
 end
 
-struct SurrogateHarness{M,O,S,L}
+struct SurrogateHarness{M, O, S, L}
     model::M
     obj::O
     surrogate::S
@@ -146,7 +147,7 @@ struct SurrogateHarness{M,O,S,L}
 end
 
 function optimize_accuracy!(harness::SurrogateHarness, ; kwargs...)
-    optimize_accuracy!(
+    return optimize_accuracy!(
         harness.surrogate,
         harness.obj,
         harness.lower_bounds,
@@ -177,15 +178,15 @@ seeded with `seed_samples` points prior to optimization.
     version.
 """
 function make_surrogate_harness(
-    make_surrogate::Function,
-    domain,
-    model::M,
-    lowerbounds::T,
-    upperbounds::T,
-    ;
-    seed_samples = 50,
-    sample_type = SobolSample(),
-) where {M<:AbstractSpectralModel,T<:NTuple}
+        make_surrogate::Function,
+        domain,
+        model::M,
+        lowerbounds::T,
+        upperbounds::T,
+        ;
+        seed_samples = 50,
+        sample_type = SobolSample(),
+    ) where {M <: AbstractSpectralModel, T <: NTuple}
     # do tests here to make sure lower and upper bounds are okay
     obj = wrap_model_as_objective(model, domain)
 
@@ -197,7 +198,7 @@ function make_surrogate_harness(
     # build surrogate
     inits = _initial_space(obj, lowerbounds, upperbounds, sample_type, seed_samples)
 
-    SurrogateHarness(model, obj, make_surrogate(inits.x, inits.y), lowerbounds, upperbounds)
+    return SurrogateHarness(model, obj, make_surrogate(inits.x, inits.y), lowerbounds, upperbounds)
 end
 
 function make_model(harness::SurrogateHarness)
@@ -211,7 +212,7 @@ function make_model(harness::SurrogateHarness)
     syms = map(I) do i
         symbols[i]
     end
-    SurrogateSpectralModel(modelkind(harness.model), harness.surrogate, params, syms)
+    return SurrogateSpectralModel(modelkind(harness.model), harness.surrogate, params, syms)
 end
 
 export SurrogateSpectralModel,

@@ -4,11 +4,11 @@ struct ModelFittingCache{BackingCacheType}
 end
 
 function ModelFittingCache(model_output::AbstractArray, objective_output::AbstractArray)
-    ModelFittingCache(DiffCache(model_output), DiffCache(objective_output))
+    return ModelFittingCache(DiffCache(model_output), DiffCache(objective_output))
 end
 
 function Base.show(io::IO, ::MIME"text/plain", @nospecialize(cache::ModelFittingCache))
-    println(
+    return println(
         io,
         "ModelFittingCache[#model_output=$(size(cache.model_output.du)),#objective_output=$(size(cache.objective_output.du))]",
     )
@@ -17,28 +17,28 @@ end
 function _make_model_cache(layout, model::AbstractSpectralModel, model_domain, objective)
     model_output = construct_objective_cache(layout, model, model_domain)
     objective_output = zeros(eltype(objective), (length(objective), 1))
-    ModelFittingCache(model_output, objective_output)
+    return ModelFittingCache(model_output, objective_output)
 end
 
 function calculate_objective!(
-    cache::ModelFittingCache,
-    domain,
-    model::AbstractSpectralModel{T},
-    transformer!!,
-    ext::DomainExtension,
-) where {T<:Number}
+        cache::ModelFittingCache,
+        domain,
+        model::AbstractSpectralModel{T},
+        transformer!!,
+        ext::DomainExtension,
+    ) where {T <: Number}
     model_output = get_tmp(cache.model_output, zero(T))
     objective_output = get_tmp(cache.objective_output, zero(T))
 
     output = _inner_invokemodel!(model_output, domain, model)
 
     # pull out the original domain from the extensions
-    transformable_output = @views output[(length(ext.low)+1):(end-length(ext.high))]
-    transformable_domain = @views domain[(length(ext.low)+1):(end-length(ext.high))]
+    transformable_output = @views output[(length(ext.low) + 1):(end - length(ext.high))]
+    transformable_domain = @views domain[(length(ext.low) + 1):(end - length(ext.high))]
 
     transformer!!(objective_output, transformable_domain, transformable_output)
 
-    @views objective_output[:, 1]
+    return @views objective_output[:, 1]
 end
 
 struct DatasetFittingCache{V}
@@ -50,15 +50,15 @@ struct DatasetFittingCache{V}
 end
 
 struct FittingConfig{
-    T,
-    Prob<:FittingProblem,
-    Statistic,
-    ParameterCacheType,
-    BindingsType,
-    ModelCacheType,
-    DataCacheType,
-    TransformerType,
-}
+        T,
+        Prob <: FittingProblem,
+        Statistic,
+        ParameterCacheType,
+        BindingsType,
+        ModelCacheType,
+        DataCacheType,
+        TransformerType,
+    }
     u0::Vector{FitParam{T}}
     prob::Prob
     stat::Statistic
@@ -118,15 +118,15 @@ function FittingConfig(prob::FittingProblem; stat = ChiSquared())
         )
 
         transformer!!,
-        dataset_cache,
-        _make_model_cache(layout, model, model_domain, objective)
+            dataset_cache,
+            _make_model_cache(layout, model, model_domain, objective)
     end
 
     all_transformers = map(i -> _res[i][1], I)
     all_data_cache = map(i -> _res[i][2], I)
     all_model_cache = map(i -> _res[i][3], I)
 
-    FittingConfig(
+    return FittingConfig(
         p_vector[free_mask],
         prob,
         stat,
@@ -141,7 +141,7 @@ end
 function calculate_objective!(config::FittingConfig, all_parameters, i::Int)
     params = @views all_parameters[config.parameter_bindings[i]]
     model = remake_with_parameters(config.prob.model.m[i], params)
-    calculate_objective!(
+    return calculate_objective!(
         config.model_cache[i],
         config.data_cache[i].model_domain,
         model,
@@ -154,7 +154,7 @@ function measure_objective!(config::FittingConfig, u0, i::Int)
     all_parameters = update_free_parameters!(config.parameter_cache, u0)
 
     y = calculate_objective!(config, all_parameters, i)
-    measure(
+    return measure(
         fit_statistic(config),
         config.data_cache[i].objective,
         y,
@@ -166,28 +166,28 @@ function calculate_objective!(config::FittingConfig, u0)
     all_parameters = update_free_parameters!(config.parameter_cache, u0)
 
     I = ((1:model_count(config.prob))...,)
-    map(I) do i
+    return map(I) do i
         calculate_objective!(config, all_parameters, i)
     end
 end
 
 function _unpack_config(prob::FittingProblem; stat = ChiSquared(), kwargs...)
     config = FittingConfig(prob; stat = stat)
-    kwargs, config
+    return kwargs, config
 end
 
 function supports_autodiff(cfg::FittingConfig)
-    all(implementation(m) isa JuliaImplementation for m in cfg.prob.model.m)
+    return all(implementation(m) isa JuliaImplementation for m in cfg.prob.model.m)
 end
 
 function Base.show(io::IO, @nospecialize(config::FittingConfig))
     descr = "FittingConfig"
-    print(io, descr)
+    return print(io, descr)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", @nospecialize(config::FittingConfig))
     descr = "FittingConfig"
-    print(io, descr)
+    return print(io, descr)
 end
 
 _get_data_cache(config::FittingConfig) = config.data_cache
@@ -217,8 +217,8 @@ See also: [`get_invoke_wrapper_single`](@ref).
 """
 function get_invoke_wrapper(config::FittingConfig)
     @assert length(config.prob.model.m) == 1 "Only defined for single models."
-    function _f_wrapper(parameters...)
-        calculate_objective!(config, parameters)
+    return function _f_wrapper(parameters...)
+        return calculate_objective!(config, parameters)
     end
 end
 
@@ -231,8 +231,9 @@ model to unpack the result tuple.
 function get_invoke_wrapper_single(config::FittingConfig)
     @assert length(config.prob.model.m) == 1 "Only defined for single models."
     function _f_wrapper(parameters...)
-        only(calculate_objective!(config, parameters))
+        return only(calculate_objective!(config, parameters))
     end
+    return _f_wrapper
 end
 
 export FittingConfig,

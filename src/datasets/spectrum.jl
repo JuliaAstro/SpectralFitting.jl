@@ -12,7 +12,7 @@ mutable struct Spectrum{T} <: AbstractDataset
     area_scale::T
 
     error_statistics::SpectralFitting.ErrorStatistics.T
-    errors::Union{Nothing,Vector{T}}
+    errors::Union{Nothing, Vector{T}}
     systematic_error::T
 
     telescope_name::String
@@ -25,7 +25,7 @@ function remake_spectrum(spec::Spectrum; data::Vector, errors = nothing)
     s = deepcopy(spec)
     s.data = data
     s.errors = errors
-    s
+    return s
 end
 
 function mask!(spectrum::Spectrum, mask)
@@ -35,7 +35,7 @@ function mask!(spectrum::Spectrum, mask)
     if !isnothing(spectrum.errors)
         spectrum.errors = spectrum.errors[mask]
     end
-    spectrum
+    return spectrum
 end
 
 function normalize!(spectrum::Spectrum)
@@ -44,27 +44,27 @@ function normalize!(spectrum::Spectrum)
         @. spectrum.errors /= spectrum.exposure_time
         spectrum.units = u"counts/ s"
     end
-    spectrum
+    return spectrum
 end
 
 supports(::Type{<:Spectrum}) = (ContiguouslyBinned(),)
 
 function make_objective(::ContiguouslyBinned, dataset::Spectrum)
-    dataset.data
+    return dataset.data
 end
 
 function make_objective_variance(::ContiguouslyBinned, dataset::Spectrum)
-    dataset.errors .^ 2
+    return dataset.errors .^ 2
 end
 
 function make_model_domain(::ContiguouslyBinned, dataset::Spectrum)
     @warn "Spectrum doesn't know the energy values by default. Domain is channels. Proceed only if you know what you are doing."
-    dataset.channels
+    return dataset.channels
 end
 
 function make_output_domain(::ContiguouslyBinned, dataset::Spectrum)
     @warn "Spectrum doesn't know the energy values by default. Domain is channels. Proceed only if you know what you are doing."
-    dataset.channels
+    return dataset.channels
 end
 
 isgrouped(spectrum::Spectrum) = all(==(1), spectrum.grouping)
@@ -99,7 +99,7 @@ function regroup!(spectrum::Spectrum{T}, grouping) where {T}
 
     resize!(spectrum, length(itt))
     spectrum.grouping .= 1
-    spectrum
+    return spectrum
 end
 
 function group_min_counts!(spectrum::Spectrum, min_counts::Int)
@@ -108,9 +108,9 @@ function group_min_counts!(spectrum::Spectrum, min_counts::Int)
 
     function _counts(x)
         if spectrum.units == u"counts"
-            convert(Int, x)
+            return convert(Int, x)
         elseif spectrum.units == u"counts / s"
-            convert(Int, x * spectrum.exposure_time)
+            return convert(Int, x * spectrum.exposure_time)
         end
     end
 
@@ -125,6 +125,7 @@ function group_min_counts!(spectrum::Spectrum, min_counts::Int)
             spectrum.grouping[i] = CONTINUE_GRP
         end
     end
+    return
 end
 
 function Base.resize!(spectrum::Spectrum, n::Int)
@@ -132,7 +133,7 @@ function Base.resize!(spectrum::Spectrum, n::Int)
     resize!(spectrum.data, n)
     resize!(spectrum.grouping, n)
     resize!(spectrum.quality, n)
-    if !isnothing(spectrum.errors)
+    return if !isnothing(spectrum.errors)
         resize!(spectrum.errors, n)
     end
 end
@@ -145,7 +146,7 @@ function drop_channels!(spectrum::Spectrum, indices)
     if !isnothing(spectrum.errors)
         deleteat!(spectrum.errors, indices)
     end
-    length(indices)
+    return length(indices)
 end
 
 _readable_boolean(b) = b ? "yes" : "no"
@@ -163,13 +164,13 @@ function _printinfo(io::IO, spectrum::Spectrum)
       . Grouped             : $is_grouped
       . Bad channels        : $has_bad
     """
-    print(io, descr)
+    return print(io, descr)
 end
 
 error_statistic(spec::Spectrum) = spec.error_statistics
 
 function subtract_background(spectrum::Spectrum, background::Spectrum)
-    subtract_background!(deepcopy(spectrum), background)
+    return subtract_background!(deepcopy(spectrum), background)
 end
 
 function subtract_background!(spectrum::Spectrum, background::Spectrum)
@@ -201,7 +202,7 @@ function subtract_background!(spectrum::Spectrum, background::Spectrum)
         spectrum.exposure_time,
         background.exposure_time,
     )
-    spectrum
+    return spectrum
 end
 
 """

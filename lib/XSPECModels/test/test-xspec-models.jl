@@ -51,7 +51,7 @@ flux1 = invokemodel(energy, model1)
 flux2 = invokemodel(energy, model2)
 # these should _not_ be the same, despite same normalisation
 # so use the sum of residiuals as a metric for difference
-@test isapprox(sum(flux1 .- flux2), 86.18438944203572, rtol = 1e-4)
+@test isapprox(sum(flux1 .- flux2), 86.18438944203572, rtol = 1.0e-4)
 
 
 # inplace variants

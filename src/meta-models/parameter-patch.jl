@@ -16,18 +16,18 @@ The possible properties that can be access are defined in a symbol vector.
 Every "model" accessed this way will return a view on the parameters via
 [`ModelPatchView`](@ref).
 """
-struct ParameterPatchView{V<:AbstractVector}
+struct ParameterPatchView{V <: AbstractVector}
     _values::V
-    _symbols::Vector{Pair{Symbol,Symbol}}
-    _access::Union{Nothing,BitVector}
-    function ParameterPatchView(values::V, symbols; track = false) where {V<:AbstractVector}
+    _symbols::Vector{Pair{Symbol, Symbol}}
+    _access::Union{Nothing, BitVector}
+    function ParameterPatchView(values::V, symbols; track = false) where {V <: AbstractVector}
         @assert size(values) == size(symbols)
         access = if track
             BitArray([false for i in symbols])
         else
             nothing
         end
-        new{V}(values, symbols, access)
+        return new{V}(values, symbols, access)
     end
 end
 
@@ -41,7 +41,7 @@ pv = ParameterPatchView(...)
 pv.a1.K = pv.a2.K * 3 + 2
 ```
 """
-struct ModelPatchView{P<:ParameterPatchView}
+struct ModelPatchView{P <: ParameterPatchView}
     _parent::P
     _model::Symbol
 end
@@ -53,7 +53,7 @@ function Base.getproperty(pv::ModelPatchView, s::Symbol)
     parent = getfield(pv, :_parent)
     syms = getfield(parent, :_symbols)
     for (i, pair) in enumerate(syms)
-        if (first(pair) == getfield(pv, :_model)) && (last(pair) == s)
+        if first(pair) == getfield(pv, :_model) && last(pair) == s
             return getfield(parent, :_values)[i]
         end
     end
@@ -64,7 +64,7 @@ function Base.setproperty!(pv::ModelPatchView, s::Symbol, value)
     parent = getfield(pv, :_parent)
     syms = getfield(parent, :_symbols)
     for (i, pair) in enumerate(syms)
-        if (first(pair) == getfield(pv, :_model)) && (last(pair) == s)
+        if first(pair) == getfield(pv, :_model) && last(pair) == s
             if !isnothing(getfield(parent, :_access))
                 getfield(parent, :_access)[i] = true
             end
@@ -116,28 +116,28 @@ parameters as desired.
     parameters patched this way will be labelled as `bound`.
 
 """
-struct ParameterPatch{M,T,K,F} <: AbstractModelWrapper{M,T,K}
+struct ParameterPatch{M, T, K, F} <: AbstractModelWrapper{M, T, K}
     model::M
-    symbols::Vector{Pair{Symbol,Symbol}}
+    symbols::Vector{Pair{Symbol, Symbol}}
     patch!::F
     function ParameterPatch(
-        model::AbstractSpectralModel{T,K},
-        symbols,
-        patch!::F,
-    ) where {T,K,F}
-        new{typeof(model),T,K,F}(model, symbols, patch!)
+            model::AbstractSpectralModel{T, K},
+            symbols,
+            patch!::F,
+        ) where {T, K, F}
+        return new{typeof(model), T, K, F}(model, symbols, patch!)
     end
 end
 
 function remake_with_parameters(
-    model::ParameterPatch{T,K},
-    params::AbstractVector,
-) where {T,K}
+        model::ParameterPatch{T, K},
+        params::AbstractVector,
+    ) where {T, K}
     model.patch!(ParameterPatchView(params, model.symbols))
-    ParameterPatch(remake_with_parameters(model.model, params), model.symbols, model.patch!)
+    return ParameterPatch(remake_with_parameters(model.model, params), model.symbols, model.patch!)
 end
 
-function ParameterPatch(model::AbstractSpectralModel{T,K}; patch::Function) where {T,K}
+function ParameterPatch(model::AbstractSpectralModel{T, K}; patch::Function) where {T, K}
     _, syms = _all_parameters_with_symbols(model)
     model_copy = copy(model)
     # work out which parameters are being patched
@@ -150,7 +150,7 @@ function ParameterPatch(model::AbstractSpectralModel{T,K}; patch::Function) wher
             pvec[i].patched = true
         end
     end
-    pp
+    return pp
 end
 
 """
@@ -166,12 +166,12 @@ function apply_patch!(model::ParameterPatch)
     for (v, p) in zip(params, pvec)
         set_value!(p, v)
     end
-    model
+    return model
 end
 
 function update_model!(model::ParameterPatch, result::FitResultSlice)
     update_model!(backing_model(model), result)
-    apply_patch!(model)
+    return apply_patch!(model)
 end
 
 export ParameterPatch, ParameterPatchView, apply_patch!

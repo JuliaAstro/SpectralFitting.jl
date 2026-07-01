@@ -1,13 +1,13 @@
 mutable struct CacheEntry{T}
     cache::Vector{T}
     params::Vector{T}
-    domain_limits::Tuple{T,T}
+    domain_limits::Tuple{T, T}
     size_of_element::Int
 
     function CacheEntry(params::AbstractVector{<:Number})
         T = eltype(params)
         cache = zeros(T, 1)
-        new{T}(cache, params, (zero(T), zero(T)), sizeof(T))
+        return new{T}(cache, params, (zero(T), zero(T)), sizeof(T))
     end
 end
 
@@ -27,20 +27,20 @@ model = PhotoelectricAbsorption() * AutoCache(PowerLaw())
 In the above model, the [`PowerLaw`](@ref) component will be augmented with the
 caching behaviour.
 """
-struct AutoCache{M,T,K,C<:CacheEntry} <: AbstractModelWrapper{M,T,K}
+struct AutoCache{M, T, K, C <: CacheEntry} <: AbstractModelWrapper{M, T, K}
     model::M
     parameter_symbols::Vector{Symbol}
     cache::C
     abstol::Float64
     enabled::Bool
     function AutoCache(
-        model::AbstractSpectralModel{T,K},
-        parameter_symbols::Vector{Symbol},
-        cache::CacheEntry,
-        abstol,
-        enabled::Bool,
-    ) where {T,K}
-        new{typeof(model),T,K,typeof(cache)}(
+            model::AbstractSpectralModel{T, K},
+            parameter_symbols::Vector{Symbol},
+            cache::CacheEntry,
+            abstol,
+            enabled::Bool,
+        ) where {T, K}
+        return new{typeof(model), T, K, typeof(cache)}(
             model,
             parameter_symbols,
             cache,
@@ -51,7 +51,7 @@ struct AutoCache{M,T,K,C<:CacheEntry} <: AbstractModelWrapper{M,T,K}
 end
 
 function remake_with_parameters(m::AutoCache, parameters::Tuple)
-    AutoCache(
+    return AutoCache(
         remake_with_parameters(backing_model(m), parameters),
         m.parameter_symbols,
         m.cache,
@@ -61,7 +61,7 @@ function remake_with_parameters(m::AutoCache, parameters::Tuple)
 end
 
 function Base.copy(m::AutoCache)
-    AutoCache(
+    return AutoCache(
         copy(m.model),
         copy(m.parameter_symbols),
         deepcopy(m.cache),
@@ -72,49 +72,49 @@ end
 _model_name(model::AutoCache) = "AutoCache[$(_model_name(model.model))]"
 
 function AutoCache(
-    model::AbstractSpectralModel{T,K};
-    abstol = 1e-3,
-    enabled = true,
-) where {T,K}
+        model::AbstractSpectralModel{T, K};
+        abstol = 1.0e-3,
+        enabled = true,
+    ) where {T, K}
     @assert !is_composite(model)
     params, syms = _all_parameters_with_symbols(model)
     cache = CacheEntry(get_value.(params))
-    AutoCache(model, last.(syms), cache, abstol, enabled)
+    return AutoCache(model, last.(syms), cache, abstol, enabled)
 end
 
 function _reinterpret_dual(
-    M::Type{<:AbstractSpectralModel},
-    ::Type,
-    v::AbstractArray,
-    n::Int,
-)
+        M::Type{<:AbstractSpectralModel},
+        ::Type,
+        v::AbstractArray,
+        n::Int,
+    )
     needs_resize = n > length(v)
     if needs_resize
         @warn "$(Base.typename(M).name): Growing dual buffer..."
         resize!(v, n)
     end
-    view(v, 1:n), needs_resize
+    return view(v, 1:n), needs_resize
 end
 function _reinterpret_dual(
-    M::Type{<:AbstractSpectralModel},
-    DualType::Type{<:ForwardDiff.Dual},
-    v::AbstractArray{T},
-    n::Int,
-) where {T}
+        M::Type{<:AbstractSpectralModel},
+        DualType::Type{<:ForwardDiff.Dual},
+        v::AbstractArray{T},
+        n::Int,
+    ) where {T}
     n_elems = div(sizeof(DualType), sizeof(T)) * n
     needs_resize = n_elems > length(v)
     if needs_resize
         @warn "$(Base.typename(M).name): Growing dual buffer..."
         resize!(v, n_elems)
     end
-    reinterpret(DualType, view(v, 1:n_elems)), needs_resize
+    return reinterpret(DualType, view(v, 1:n_elems)), needs_resize
 end
 
 function _inner_invokemodel!(
-    output,
-    domain,
-    model::AutoCache{<:AbstractSpectralModel{T,K}},
-) where {T,K}
+        output,
+        domain,
+        model::AutoCache{<:AbstractSpectralModel{T, K}},
+    ) where {T, K}
     if model.enabled == false
         invoke!(output, domain, backing_model(model))
     end
@@ -136,7 +136,7 @@ function _inner_invokemodel!(
     same_domain = cache.domain_limits == _new_limits
 
     # if the parameter size has changed, need to rerun the model
-    if (!out_resized) && (cache.size_of_element == sizeof(D)) && (same_domain)
+    if !out_resized && cache.size_of_element == sizeof(D) && same_domain
         # ignore the normalisation, since that's applied later
         within_tolerance = all(start:length(p_syms)) do i
             new_value = getproperty(backing_model(model), p_syms[i])
@@ -156,11 +156,12 @@ function _inner_invokemodel!(
     cache.domain_limits = _new_limits
 
     # update the parameter cache
-    for i = start:length(p_syms)
+    for i in start:length(p_syms)
         param_cache[i] = getproperty(backing_model(model), p_syms[i])
     end
     # set the output
     @. output = output_cache
+    return
 end
 
 export AutoCache

@@ -2,7 +2,6 @@ using Test
 using SpectralFitting
 
 
-
 add_model = DummyAdditive()
 mul_model = DummyMultiplicative()
 

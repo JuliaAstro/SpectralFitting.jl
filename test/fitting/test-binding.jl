@@ -1,11 +1,10 @@
 using SpectralFitting, Test
 
 
-
 dummy_data1 = make_dummy_dataset((E) -> E^(-3.0) + E^(-2.3); units = u"counts / (s * keV)")
 
 model1 = PowerLaw() + PowerLaw()
-model2 = sum(PowerLaw() for i = 1:3)
+model2 = sum(PowerLaw() for i in 1:3)
 
 prob = FittingProblem(model1 => dummy_data1, model2 => dummy_data1)
 

@@ -6,9 +6,9 @@ DEFAULT_MODEL_INT_TYPE = Cint
 
 @inline function get_untracked_error(T::Type)
     if T === Float64
-        UNTRACKED_ERROR_F64
+        return UNTRACKED_ERROR_F64
     elseif T === Float32
-        UNTRACKED_ERROR_F32
+        return UNTRACKED_ERROR_F32
     else
         error("Unsupported type $(T)")
     end
@@ -23,25 +23,25 @@ _unsafe_unwrap_parameter(ptr, N, ::Additive, T::Type) =
     unsafe_wrap(Vector{T}, ptr + sizeof(T), N - 1, own = false)
 
 @inline function unsafe_parameter_vector(
-    model_ref::Ref{M},
-) where {M<:AbstractSpectralModel{T}} where {T}
+        model_ref::Ref{M},
+    ) where {M <: AbstractSpectralModel{T}} where {T}
     N = length(fieldnames(M))
     ptr = convert(Ptr{T}, pointer_from_objref(model_ref))
     # reinterpret as an unowned vector of `T`
-    _unsafe_unwrap_parameter(ptr, N, modelkind(M), T)
+    return _unsafe_unwrap_parameter(ptr, N, modelkind(M), T)
 end
 
 # pointer hackery
 function unsafe_parameter_vector_conditioned(
-    model_ref::Ref{<:AbstractSpectralModel{T}},
-) where {T}
+        model_ref::Ref{<:AbstractSpectralModel{T}},
+    ) where {T}
     if implementation(typeof(model_ref[])) == JuliaImplementation()
         throw("This method is only for `XSPECImplementation` models.")
     end
     if !isbitstype(T)
         throw("Can only reinterpret to bits type (convert `$T`).")
     end
-    unsafe_parameter_vector(model_ref)
+    return unsafe_parameter_vector(model_ref)
 end
 
 """
@@ -58,18 +58,20 @@ Wrapper to do a foreign function call to an XSPEC model.
 See also [`_safe_ffi_invoke!`](@ref).
 """
 function _unsafe_ffi_invoke!(
-    output,
-    error_vec,
-    input,
-    params,
-    ModelType::Type{<:AbstractSpectralModel},
-)
-    error("""
-          Not yet implemented for $(ModelType).
-          If you set `generate_ffi_call=false` when using `@xspecmodel`,
-          you must implement this function. Consult the documentation of
-          `@xspecmodel` for reference.
-          """)
+        output,
+        error_vec,
+        input,
+        params,
+        ModelType::Type{<:AbstractSpectralModel},
+    )
+    error(
+        """
+        Not yet implemented for $(ModelType).
+        If you set `generate_ffi_call=false` when using `@xspecmodel`,
+        you must implement this function. Consult the documentation of
+        `@xspecmodel` for reference.
+        """
+    )
 end
 
 """
@@ -84,18 +86,18 @@ function _safe_ffi_invoke!(output, input, params, ModelType::Type{<:AbstractSpec
 end
 
 macro wrap_xspec_model_ccall(
-    FloatType,
-    IntType,
-    func_name,
-    callsite,
-    input,
-    output,
-    err,
-    parameters,
-    spec_number,
-    init_string,
-)
-    quote
+        FloatType,
+        IntType,
+        func_name,
+        callsite,
+        input,
+        output,
+        err,
+        parameters,
+        spec_number,
+        init_string,
+    )
+    return quote
         ccall(
             ($(func_name), $(callsite)),
             Cvoid,
@@ -167,9 +169,9 @@ macro xspecmodel(args...)
     model_float_type::Type = DEFAULT_MODEL_FLOAT_TYPE
     model_int_type::Type = DEFAULT_MODEL_INT_TYPE
 
-    if (length(args) > 1)
-        for arg in args[1:(end-1)]
-            if (arg isa QuoteNode) || (arg.head !== :(=))
+    if length(args) > 1
+        for arg in args[1:(end - 1)]
+            if arg isa QuoteNode || arg.head !== :(=)
                 # parse only optional positional
                 if isnothing(c_function)
                     c_function = arg
@@ -199,7 +201,7 @@ macro xspecmodel(args...)
     model_name = model.args[2].args[1].args[1]
     model_type_params = model.args[2].args[1].args[2:end]
     model_kind = model.args[2].args[end]
-    symbols = [i.args[1] for i in model_args.args if (i isa Expr) && (i.head == :(::))]
+    symbols = [i.args[1] for i in model_args.args if i isa Expr && i.head == :(::)]
 
     if model_kind.args[2] == :Additive
         # get rid of the normalisation from function arguments
@@ -238,17 +240,17 @@ macro xspecmodel(args...)
             # allocate the model
             model_ref = Ref(model)
             params = @noinline XSPECModels.unsafe_parameter_vector_conditioned(model_ref)
-            XSPECModels._safe_ffi_invoke!(vec(output), input, params, typeof(model))
+            return XSPECModels._safe_ffi_invoke!(vec(output), input, params, typeof(model))
         end
 
         $(_ffi_type_guard)
 
         @inline function XSPECModels._safe_ffi_invoke!(
-            output::AbstractVector{<:$(model_float_type)},
-            input::AbstractVector{<:$(model_float_type)},
-            params::AbstractVector{<:$(model_float_type)},
-            ModelType::Type{<:$(model_name)},
-        )
+                output::AbstractVector{<:$(model_float_type)},
+                input::AbstractVector{<:$(model_float_type)},
+                params::AbstractVector{<:$(model_float_type)},
+                ModelType::Type{<:$(model_name)},
+            )
             @assert length(output) + 1 == length(input)
             SpectralFitting.ensure_model_data($(model_name))
 
@@ -256,7 +258,7 @@ macro xspecmodel(args...)
             if length(error_vec) < length(output)
                 XSPECModels.resize_untracked_error!(error_vec, length(output))
             end
-            XSPECModels._unsafe_ffi_invoke!(output, error_vec, input, params, ModelType)
+            return XSPECModels._unsafe_ffi_invoke!(output, error_vec, input, params, ModelType)
         end
 
         $(_unsafe_call_def)
@@ -267,44 +269,35 @@ end
 
 function _build_ffi_type_guard(model_name, model_float_type)
     if model_float_type != DEFAULT_MODEL_FLOAT_TYPE
-        :(@inline function XSPECModels._safe_ffi_invoke!(
-            output,
-            input,
-            params,
-            ModelType::Type{<:$(model_name)},
+        return :(
+            @inline function XSPECModels._safe_ffi_invoke!(
+                    output, input, params, ModelType::Type{<:$(model_name)},
+                )
+                f_typed_output = convert.($(model_float_type), (output))
+                f_typed_input = convert.($(model_float_type), (input))
+                f_typed_params = convert.($(model_float_type), (params))
+                XSPECModels._safe_ffi_invoke!(
+                    f_typed_output,
+                    f_typed_input,
+                    f_typed_params,
+                    ModelType,
+                )
+                return @. output = f_typed_output
+            end
         )
-            f_typed_output = convert.($(model_float_type), (output))
-            f_typed_input = convert.($(model_float_type), (input))
-            f_typed_params = convert.($(model_float_type), (params))
-            XSPECModels._safe_ffi_invoke!(
-                f_typed_output,
-                f_typed_input,
-                f_typed_params,
-                ModelType,
-            )
-            @. output = f_typed_output
-        end)
     else
-        :()
+        return :()
     end
 end
 
 function _build_unsafe_ffi_call(
-    model_name,
-    call_symbol,
-    call_site,
-    model_float_type,
-    model_int_type,
-)
-    :(
+        model_name, call_symbol, call_site, model_float_type, model_int_type,
+    )
+    return :(
         function XSPECModels._unsafe_ffi_invoke!(
-            output,
-            error_vec,
-            input,
-            params,
-            ::Type{<:$(model_name)},
-        )
-            XSPECModels.@wrap_xspec_model_ccall(
+                output, error_vec, input, params, ::Type{<:$(model_name)},
+            )
+            return XSPECModels.@wrap_xspec_model_ccall(
                 $(model_float_type),
                 $(model_int_type),
                 $(call_symbol),

@@ -2,13 +2,13 @@ using Test
 using SpectralFitting
 import Random
 
-lower_bounds = (1e-3,)
+lower_bounds = (1.0e-3,)
 upper_bounds = (3.0,)
 
 energy = collect(range(0.1, 20.0, 100))
 model = PhotoelectricAbsorption()
 
-flux = similar(energy)[1:(end-1)]
+flux = similar(energy)[1:(end - 1)]
 
 surrogate = make_surrogate_harness(
     (x, y) -> SpectralFitting.RadialBasis(x, y, lower_bounds, upper_bounds),
@@ -28,13 +28,13 @@ f = invokemodel(energy, model)
 
 f̂ = surrogate.surrogate([nh])
 
-@test sum(f .- f̂) ≈ 0.0 atol = 1e-3
+@test sum(f .- f̂) ≈ 0.0 atol = 1.0e-3
 
 optimize_accuracy!(surrogate; maxiters = 50)
 
 f̂ = surrogate.surrogate([nh])
 
-@test sum(f .- f̂) ≈ -0.000362214 atol = 1e-4
+@test sum(f .- f̂) ≈ -0.000362214 atol = 1.0e-4
 
 sm = @inferred make_model(surrogate)
 

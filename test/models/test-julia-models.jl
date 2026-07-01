@@ -2,7 +2,6 @@ using Test
 using SpectralFitting
 
 
-
 ALL_JULIA_MODELS = [PowerLaw, BlackBody, BremsStrahlung]
 
 # has data requirements, so skip on the CI

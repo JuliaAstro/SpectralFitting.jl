@@ -9,10 +9,10 @@ output = zeros(Float64, length(high) - 1)
 SpectralFitting.rebin_if_different_domains!(output, high, domain, values)
 
 expected = fill(3.53825, length(high) - 1)
-@test output ≈ expected rtol = 1e-3
+@test output ≈ expected rtol = 1.0e-3
 
 
-values = (sin.(domain))[1:(end-1)]
+values = (sin.(domain))[1:(end - 1)]
 
 Random.seed!(1)
 high = sort(abs.(rand(10))) .* 10 .+ 1.3
@@ -31,4 +31,4 @@ SpectralFitting.rebin_if_different_domains!(output, high, domain, values)
     5.932901099589066,
     1.2775677281677529,
     0.44147100012051554,
-] rtol = 1e-3
+] rtol = 1.0e-3
