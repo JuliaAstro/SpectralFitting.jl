@@ -36,10 +36,10 @@ spec_nustar = OGIP.read_spectrum(nustar_spec_path)
 @test spec_nustar.telescope_name == "NuSTAR"
 
 # test reading background
-xmm_backgroud_path = joinpath(testdir, "xmm/pn_bg_spec.fits")
+xmm_background_path = joinpath(testdir, "xmm/pn_bg_spec.fits")
 nustar_background_path = joinpath(testdir, "nustar/nu60001047002A01_bk.pha")
 
-bg_xmm = OGIP.read_background(xmm_backgroud_path)
+bg_xmm = OGIP.read_background(xmm_background_path)
 @test length(bg_xmm.channels) == 4096
 
 bg_nustar = OGIP.read_background(nustar_background_path)
@@ -49,6 +49,6 @@ bg_nustar = OGIP.read_background(nustar_background_path)
 # test reading the associated paths
 xmm_paths = OGIP.read_paths_from_spectrum(xmm_spec_path)
 
-@test xmm_paths[1] == xmm_backgroud_path
+@test xmm_paths[1] == xmm_background_path
 @test xmm_paths[2] == xmm_rmf_path
 @test xmm_paths[3] == xmm_arf_path

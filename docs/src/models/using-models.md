@@ -11,7 +11,7 @@ In this page you'll find how to use the spectral model library and how to define
 model = PowerLaw()
 ```
 
-In the output of the REPL we see the model name, and it's two parameters, with information about those parameters, such as the current value, the associated error (10% by defaul), the minimum and maximum values, and whether the parameter is frozen or not.
+In the output of the REPL we see the model name, and it's two parameters, with information about those parameters, such as the current value, the associated error (10% by default), the minimum and maximum values, and whether the parameter is frozen or not.
 
 !!! note
 
@@ -85,7 +85,7 @@ end
 
 Here we used the utility method [`SpectralFitting.finite_diff_kernel!`](@ref) to ensure the additive model is appropriately scaled across the bin width.
 
-Note that [`Additive`](@ref) models do not need to use the normalization parameter `K` themselves. This is because when we use [`invokemodel`](@ref) these sorts of translations are automatically applied, for compatability with external models.
+Note that [`Additive`](@ref) models do not need to use the normalization parameter `K` themselves. This is because when we use [`invokemodel`](@ref) these sorts of translations are automatically applied, for compatibility with external models.
 
 Our model is now ready to use
 ```@example using_models

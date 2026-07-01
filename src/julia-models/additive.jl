@@ -289,7 +289,7 @@ $(FIELDS)
 
 ```julia
 energy = collect(range(0.1, 20.0, 100))
-invokemodel(energy, GuassianLine())
+invokemodel(energy, GaussianLine())
 ```
 
 ```

@@ -39,7 +39,7 @@ is_composite(::Type{<:AsConvolution}) = false
     Base.copy(m::AsConvolution)
 
 Creates a copy of an [`AsConvolution`](@ref) wrapped model. Will make a
-`deepcopy` of the cache to elimiate possible thread contention, but does not
+`deepcopy` of the cache to eliminate possible thread contention, but does not
 copy the domain.
 """
 Base.copy(m::AsConvolution) =

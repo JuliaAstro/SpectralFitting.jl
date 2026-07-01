@@ -78,7 +78,7 @@ function _accumulated_indices(items)
 end
 
 """
-    ParameterTriple(model_index, component, paramter)
+    ParameterTriple(model_index, component, parameter)
     ParameterTriple(info_tuple)
 
 Used to unambiguously denote a given parameter in a fitting problem.
@@ -463,11 +463,11 @@ The `model_index` is the index of the model in a multi-fit problem, i.e. `1`,
 The component name is a [`CompositeModel`](@ref) model name, e.g. `:a1`, or
 `:c3`. This can be omitted if the model is not a [`CompositeModel`](@ref).
 
-The paramter symbol is a symbol representing the field of the parameter in the
+The parameter symbol is a symbol representing the field of the parameter in the
 model. That is, `:K` or `:log10Flux`.
 
 Bindings are specified using a chain of pairs `(root) => (target) [=>
-(target)]`. The root parameter is kept as is, and all subsequent paramters are
+(target)]`. The root parameter is kept as is, and all subsequent parameters are
 bound to the root. Multiple chains of pairs may be specified in a single call
 to `bind!`, or, alternatively, multiple bindings may be specified with
 successive calls to `bind!`.

@@ -74,7 +74,7 @@ The available constructors are:
 
 Using [`SpectralDataPaths`](@ref).
 
-If the spectrum and repsonse matrix have already been loaded seperately, use
+If the spectrum and response matrix have already been loaded separately, use
 
     SpectralData(
         spectrum::Spectrum,

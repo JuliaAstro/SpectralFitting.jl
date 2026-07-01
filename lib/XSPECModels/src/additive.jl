@@ -316,7 +316,7 @@ invokemodel(energy, XS_KyrLine())
     lineE::T
     α::T
     β::T
-    "Break radius seperating inner and outer disk (GM/c²)."
+    "Break radius separating inner and outer disk (GM/c²)."
     break_r::T
     "Overall Doppler shift."
     z::T

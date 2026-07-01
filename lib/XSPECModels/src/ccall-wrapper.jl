@@ -126,7 +126,7 @@ Used to wrap additional XSPEC models, generating the needed [`AbstractSpectralMo
 implementation.
 
 The `type` keyword specifies the underlying type to coerce input and output arrays to, as different
-implementations may have incompatible number of bits. The `ff_call_site` is the foreign fuction call site,
+implementations may have incompatible number of bits. The `ff_call_site` is the foreign function call site,
 which is the first argument to `ccall`, and follows the same conventions. The `model` is a struct, which must subtype
 [`AbstractSpectralModel`](@ref).
 

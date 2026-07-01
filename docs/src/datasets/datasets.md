@@ -22,7 +22,7 @@ Mathematically, expressing the output domain $X$, the model domain $D$, the mode
 \hat{S} = T \times M(D),
 ```
 
-Both $\hat{S}$ and $S$ are defined over $X$. The various fitting operations try to find model paramters that make $\hat{S}$ and $S$ as close as possible.
+Both $\hat{S}$ and $S$ are defined over $X$. The various fitting operations try to find model parameters that make $\hat{S}$ and $S$ as close as possible.
 
 ```@docs
 AbstractDataset

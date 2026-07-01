@@ -2,7 +2,7 @@
 
 One of the core interface that SpectralFitting.jl provides are the model
 abstractions, and a method for controlling their _parameters_. Models are
-defined with a generic field type, so that they can be converted to primative
+defined with a generic field type, so that they can be converted to primitive
 types (e.g. Float64 or Float32) during evaluation. But whilst defining a model
 or a problem, the field type of all parameters is [`FitParam`](@ref).
 
@@ -12,7 +12,7 @@ FitParam
 
 ## Parameter binding
 
-When performing a fit, it is desireable to **bind** certain parameters together. This ensures that they will have the same value; for example, if you were fitting two simultaneous datasets with two [`PowerLaw`](@ref) models, you may want to have different normalisations of the model components, but enforce the power law index to be the same. To achieve this, SpectralFitting has the [`bind!`](@ref) function that applies to your [`FittingProblem`](@ref).
+When performing a fit, it is desirable to **bind** certain parameters together. This ensures that they will have the same value; for example, if you were fitting two simultaneous datasets with two [`PowerLaw`](@ref) models, you may want to have different normalisations of the model components, but enforce the power law index to be the same. To achieve this, SpectralFitting has the [`bind!`](@ref) function that applies to your [`FittingProblem`](@ref).
 
 ```@docs
 bind!

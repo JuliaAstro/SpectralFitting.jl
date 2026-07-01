@@ -73,7 +73,7 @@ function parse_rmf_header(table::FITSFiles.HDU)
     num_channels = if haskey(table.cards, "DETCHANS")
         _parse_any(Int, get(table.cards, "DETCHANS"))
     else
-        @warn "DETCHANS is not set in RMF header. Infering channel count from table length."
+        @warn "DETCHANS is not set in RMF header. Inferring channel count from table length."
         -1
     end
     RMFHeader(first_channel, num_channels)
@@ -164,7 +164,7 @@ function read_rmf(path::String; T::Type = Float64)
         (hdr, _rmf, _channels)
     end
 
-    _build_reponse_matrix(header, rmf, channels, T)
+    _build_response_matrix(header, rmf, channels, T)
 end
 
 function read_ancillary_response(path::String; T::Type = Float64)
@@ -178,7 +178,7 @@ function read_ancillary_response(path::String; T::Type = Float64)
     SpectralFitting.AncillaryResponse{T}(bins_low, bins_high, effective_area)
 end
 
-function _build_reponse_matrix(
+function _build_response_matrix(
     header::RMFHeader,
     rmf::RMFMatrix,
     channels::RMFChannels,
