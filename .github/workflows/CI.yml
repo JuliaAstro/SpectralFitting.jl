@@ -40,16 +40,7 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
-      - uses: actions/cache@v6
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+      - uses: julia-actions/cache@v3
 
       - name: Add AstroRegistry
         shell: julia --project=. --color=yes {0}
@@ -96,16 +87,7 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
 
-      - uses: actions/cache@v6
-        env:
-          cache-name: cache-artifacts
-        with:
-          path: ~/.julia/artifacts
-          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-test-${{ env.cache-name }}-
-            ${{ runner.os }}-test-
-            ${{ runner.os }}-
+      - uses: julia-actions/cache@v3
 
       - name: Add AstroRegistry
         shell: julia --project=lib/XSPECModels/test --color=yes {0}
