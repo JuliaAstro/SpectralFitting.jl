@@ -36,7 +36,7 @@ jobs:
           repository: fjebaker/spectral-fitting-test-suite
           path: data
 
-      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.julia-version }}
 
@@ -92,7 +92,7 @@ jobs:
           repository: fjebaker/spectral-fitting-test-suite
           path: data
 
-      - uses: julia-actions/setup-julia@v2
+      - uses: julia-actions/setup-julia@v3
         with:
           version: ${{ matrix.julia-version }}
 
