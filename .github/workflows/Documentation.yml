@@ -51,6 +51,9 @@ jobs:
       - name: Precompile environment
         shell: julia --color=yes --project=docs {0}
         run: import Pkg; Pkg.precompile()
+      - name: Download model data
+        shell: julia --color=yes --project=docs {0}
+        run: import SpectralFitting; SpectralFitting.download_all_model_data()
       - name: Build and deploy documentation
         uses: julia-actions/julia-docdeploy@v1
         env:
