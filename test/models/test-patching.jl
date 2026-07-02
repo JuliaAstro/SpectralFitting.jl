@@ -1,18 +1,20 @@
 using Test
 using SpectralFitting
 
-Base.@kwdef struct ModelTester{T} <: AbstractSpectralModel{T,Additive}
+Base.@kwdef struct ModelTester{T} <: AbstractSpectralModel{T, Additive}
     K::T = FitParam(1.0)
     p1::T = FitParam(3.0)
 end
 
 function SpectralFitting.invoke!(out, domain, model::ModelTester)
     @test model.p1 == 5.0
+    return
 end
 
 function set_to_five(p)
     p.a1.p1 = 5.0
     p.a2.p1 = 5.0
+    return
 end
 
 model = ParameterPatch(ModelTester() + ModelTester(); patch = set_to_five)
@@ -26,11 +28,11 @@ set_to_five(model)
 @test model.a2.p1.value == 5.0
 
 
-
 model = PowerLaw(; K = FitParam(4.0)) + PowerLaw(; K = FitParam(8.0), a = FitParam(8.0))
 
 function relate_normalisations!(p)
     p.a1.K = p.a2.K / 2
+    return
 end
 
 patched = ParameterPatch(model; patch = relate_normalisations!)
@@ -55,5 +57,5 @@ result = fit(prob, LevenbergMarquadt())
 
 apply_patch!(patched)
 
-@test result.u ≈ [2.0004, 7.9989, 8.0001] rtol=1e-3
-@test result.stats[1] ≈ 75.639 rtol = 1e-3
+@test result.u ≈ [2.0004, 7.9989, 8.0001] rtol = 1.0e-3
+@test result.stats[1] ≈ 75.639 rtol = 1.0e-3

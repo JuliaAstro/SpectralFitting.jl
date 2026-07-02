@@ -1,7 +1,6 @@
 using SpectralFitting, Test
 
 
-
 # generate some fake powerlaw data
 dummy_data = make_dummy_dataset((E) -> (E^(-3.0)); units = u"counts / (s * keV)")
 

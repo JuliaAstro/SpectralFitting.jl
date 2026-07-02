@@ -7,7 +7,7 @@ load data from a table.
 First field in the struct **must be** `table`. See
 [`PhotoelectricAbsorption`](@ref) for an example implementation.
 """
-abstract type AbstractTableModel{T,K} <: AbstractSpectralModel{T,K} end
+abstract type AbstractTableModel{T, K} <: AbstractSpectralModel{T, K} end
 
 """
     Base.copy(m::AbstractTableModel)
@@ -20,10 +20,10 @@ When this is not the case, the user should redefine `Base.copy` for their partic
 table model to copy the table as needed.
 """
 function Base.copy(m::AbstractTableModel)
-    typeof(m)(m.table, (copy(getproperty(m, f)) for f in fieldnames(typeof(m))[2:end])...)
+    return typeof(m)(m.table, (copy(getproperty(m, f)) for f in fieldnames(typeof(m))[2:end])...)
 end
 
-abstract type AbstractCachedModel{T,K} <: AbstractSpectralModel{T,K} end
+abstract type AbstractCachedModel{T, K} <: AbstractSpectralModel{T, K} end
 
 # some utilities for interacting with XSPEC-compatible table models
 
@@ -50,21 +50,21 @@ structure currently assumes a number of things:
 
 $(FIELDS)
 """
-struct TableModelData{T,N}
+struct TableModelData{T, N}
     "Energy bins used for all of the grid entries."
     energy_bins::Vector{T}
     "The parameter axes, with the range of tabulated values."
-    params::NTuple{N,Vector{T}}
+    params::NTuple{N, Vector{T}}
     "All grids, laid out in the same way as the parameter axes."
-    grids::Array{TableGridData{Vector{T}},N}
+    grids::Array{TableGridData{Vector{T}}, N}
 end
 
 function Base.show(
-    io::IO,
-    ::MIME"text/plain",
-    @nospecialize(data::TableModelData{T,N})
-) where {T,N}
-    print(
+        io::IO,
+        ::MIME"text/plain",
+        @nospecialize(data::TableModelData{T, N})
+    ) where {T, N}
+    return print(
         io,
         "TableModelData{$T}[N=$(N),E_bins=$(length(data.energy_bins)),grid_size=$(length(data.grids))]",
     )
@@ -79,20 +79,20 @@ interpolation cache.
 
 This can then be used with `interpolate_table!` to interpolate the table data.
 """
-struct TableModelInterpolation{T,N}
-    data::TableModelData{T,N}
-    interpolator::MultilinearInterpolator{N,T}
+struct TableModelInterpolation{T, N}
+    data::TableModelData{T, N}
+    interpolator::MultilinearInterpolator{N, T}
 end
 
 function Base.show(
-    io::IO,
-    ::MIME"text/plain",
-    interp::TableModelInterpolation{T,N},
-) where {T,N}
-    print(io, "TableModelInterpolation($T,$N)")
+        io::IO,
+        ::MIME"text/plain",
+        interp::TableModelInterpolation{T, N},
+    ) where {T, N}
+    return print(io, "TableModelInterpolation($T,$N)")
 end
 
-TableModelInterpolation(tmd::TableModelData{T,N}) where {T,N} =
+TableModelInterpolation(tmd::TableModelData{T, N}) where {T, N} =
     TableModelInterpolation(tmd, MultilinearInterpolator{N}(tmd.grids; T = T))
 
 function interpolate_table!(tmi::TableModelInterpolation{T}, parameters::Vararg) where {T}
@@ -102,7 +102,7 @@ function interpolate_table!(tmi::TableModelInterpolation{T}, parameters::Vararg)
         tmi.data.grids,
         reverse(convert.(T, parameters)),
     )
-    v.values
+    return v.values
 end
 
 """
@@ -126,7 +126,7 @@ function TableModelData(::Val{N}, path::String; T::Type = Float64) where {N}
     energy_bins::Vector{T} = convert.(T, read(f[3], "ENERG_LO"))
     @assert issorted(energy_bins) "Energy bins are not in a linear order"
     _energy_high = convert.(T, read(f[3], "ENERG_HI"))
-    @views @assert all(isapprox.(_energy_high[1:(end-1)], energy_bins[2:end])) "Energy bins are not contiguously binned (i.e. `e_low[i + 1] != e_high[i]`)."
+    @views @assert all(isapprox.(_energy_high[1:(end - 1)], energy_bins[2:end])) "Energy bins are not contiguously binned (i.e. `e_low[i + 1] != e_high[i]`)."
     push!(energy_bins, last(_energy_high))
 
     # currently assuming the actual underlying parameter grid is
@@ -146,10 +146,10 @@ function TableModelData(::Val{N}, path::String; T::Type = Float64) where {N}
         TableGridData(_data[:, i])
     end
 
-    param_tuple = ((parameter_axes[i] for i = 1:N)...,)
+    param_tuple = ((parameter_axes[i] for i in 1:N)...,)
     grid = reshape(_grid, length.(param_tuple))
 
-    TableModelData{T,N}(energy_bins, param_tuple, grid)
+    return TableModelData{T, N}(energy_bins, param_tuple, grid)
 end
 
 export AbstractTableModel, TableModelData, TableGridData, TableModelInterpolation

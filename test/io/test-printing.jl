@@ -2,12 +2,10 @@ using Test
 using SpectralFitting
 
 
-
-
 function showstring(item)
     buffer = IOBuffer()
     Base.show(IOContext(buffer, :color => false), MIME"text/plain"(), item)
-    strip(String(take!(buffer)))
+    return strip(String(take!(buffer)))
 end
 
 # printing single

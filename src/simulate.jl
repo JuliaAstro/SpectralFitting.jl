@@ -1,10 +1,9 @@
-
-mutable struct SimulatedSpectrum{T,F} <: AbstractDataset
+mutable struct SimulatedSpectrum{T, F} <: AbstractDataset
     model_domain::Vector{T}
     output_domain::Vector{T}
     data::Vector{T}
     variance::Vector{T}
-    units::Union{Nothing,SpectralUnits.RateOrCount}
+    units::Union{Nothing, SpectralUnits.RateOrCount}
     transformer!!::F
     seed::Int
 end
@@ -12,11 +11,11 @@ end
 supports(::Type{<:SimulatedSpectrum}) = (ContiguouslyBinned(),)
 
 function make_objective(::ContiguouslyBinned, dataset::SimulatedSpectrum)
-    dataset.data
+    return dataset.data
 end
 
 function make_objective_variance(::ContiguouslyBinned, dataset::SimulatedSpectrum)
-    dataset.variance
+    return dataset.variance
 end
 
 make_model_domain(::ContiguouslyBinned, dataset::SimulatedSpectrum) = dataset.model_domain
@@ -27,7 +26,7 @@ objective_transformer(::ContiguouslyBinned, dataset::SimulatedSpectrum) =
 
 bin_widths(dataset::SimulatedSpectrum) = diff(dataset.output_domain)
 plotting_domain(dataset::SimulatedSpectrum) =
-    dataset.output_domain[1:(end-1)] .+ (bin_widths(dataset) ./ 2)
+    dataset.output_domain[1:(end - 1)] .+ (bin_widths(dataset) ./ 2)
 objective_units(dataset::SimulatedSpectrum) = dataset.units
 
 function _printinfo(io::IO, spectrum::SimulatedSpectrum)
@@ -41,16 +40,17 @@ function _printinfo(io::IO, spectrum::SimulatedSpectrum)
       . Out Dmn. (min/max)  : ($omin, $omax)
     """
     print(io, descr)
+    return
 end
 
 function simulate!(
-    config::FittingConfig,
-    p;
-    simulate_distribution = Distributions.Poisson,
-    rng = Random.default_rng(),
-    exposure_time = 1e5,
-    counting_variance = true,
-)
+        config::FittingConfig,
+        p;
+        simulate_distribution = Distributions.Poisson,
+        rng = Random.default_rng(),
+        exposure_time = 1.0e5,
+        counting_variance = true,
+    )
     @assert model_count(config.prob) == 1 "Cannot simulate multiple models simultaneously."
     objective = only(calculate_objective!(config, p))
     data_cache = only(config.data_cache)
@@ -65,7 +65,7 @@ function simulate!(
             data_cache.covariance[i] = inv(data_cache.variance[i])
         end
     end
-    config
+    return config
 end
 
 function simulate!(conf::FittingConfig; seed = abs(rand(Int)), kwargs...)
@@ -73,7 +73,7 @@ function simulate!(conf::FittingConfig; seed = abs(rand(Int)), kwargs...)
     Random.seed!(rng, seed)
     simulate!(conf, get_value.(conf.u0); rng = rng, kwargs...)
     data_cache = only(conf.data_cache)
-    SimulatedSpectrum(
+    return SimulatedSpectrum(
         data_cache.model_domain,
         data_cache.objective_domain,
         data_cache.objective,
@@ -85,14 +85,14 @@ function simulate!(conf::FittingConfig; seed = abs(rand(Int)), kwargs...)
 end
 
 function _make_simulation_fitting_config(
-    model::AbstractSpectralModel,
-    response::ResponseMatrix{T},
-    ancillary;
-    layout = ContiguouslyBinned(),
-    input_domain = response_energy(response),
-    output_domain = folded_energy(response),
-    kwargs...,
-) where {T}
+        model::AbstractSpectralModel,
+        response::ResponseMatrix{T},
+        ancillary;
+        layout = ContiguouslyBinned(),
+        input_domain = response_energy(response),
+        output_domain = folded_energy(response),
+        kwargs...,
+    ) where {T}
     if !supports(layout, model)
         throw("Model must support desired layout for simulation.")
     end
@@ -122,22 +122,22 @@ function _make_simulation_fitting_config(
     prob = FittingProblem(model => data)
     conf = FittingConfig(prob)
 
-    kwargs, conf
+    return kwargs, conf
 end
 
 function simulate(
-    model::AbstractSpectralModel,
-    response::ResponseMatrix,
-    ancillary::Union{Nothing,<:AncillaryResponse} = nothing;
-    kwargs...,
-)
+        model::AbstractSpectralModel,
+        response::ResponseMatrix,
+        ancillary::Union{Nothing, <:AncillaryResponse} = nothing;
+        kwargs...,
+    )
     kw, conf = _make_simulation_fitting_config(model, response, ancillary; kwargs...)
-    simulate!(conf; kw...)
+    return simulate!(conf; kw...)
 end
 
 function simulate(model::AbstractSpectralModel, dataset::AbstractDataset; kwargs...)
     kw, conf = _unpack_config(FittingProblem(model => dataset); kwargs...)
-    simulate!(conf; kw...)
+    return simulate!(conf; kw...)
 end
 
 """
@@ -151,12 +151,12 @@ The `kwargs` are:
 - `var`: variance of the data (assuming mean of 0)
 """
 function simulate(
-    domain::AbstractVector,
-    model::AbstractSpectralModel;
-    seed::Union{Nothing,Int} = nothing,
-    simulate_distribution = Distributions.Normal,
-    var = 0.1,
-)
+        domain::AbstractVector,
+        model::AbstractSpectralModel;
+        seed::Union{Nothing, Int} = nothing,
+        simulate_distribution = Distributions.Normal,
+        var = 0.1,
+    )
     _seed::Int = isnothing(seed) ? time_ns() : seed
     rng = Random.default_rng()
     Random.seed!(rng, _seed)
@@ -167,7 +167,7 @@ function simulate(
         rand(rng, simulate_distribution(f, sqrt(var)))
     end
     variances = fill(var, size(realisation))
-    BinnedData(domain, realisation; codomain_variance = variances)
+    return BinnedData(domain, realisation; codomain_variance = variances)
 end
 
 

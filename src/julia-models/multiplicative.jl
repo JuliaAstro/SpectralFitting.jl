@@ -3,7 +3,7 @@
 
 $(FIELDS)
 """
-struct PhotoelectricAbsorption{D,T} <: AbstractTableModel{T,Multiplicative}
+struct PhotoelectricAbsorption{D, T} <: AbstractTableModel{T, Multiplicative}
     table::D
     "Equivalent hydrogen column (units of 10²² atoms per cm⁻²)."
     ηH::T
@@ -13,13 +13,13 @@ function PhotoelectricAbsorption(ηH::T) where {T}
     E::Vector{Float64} = data[1]["E"]
     σ::Vector{Float64} = data[1]["σ"]
     table = linear_interpolation(E, σ, extrapolation_bc = Line())
-    PhotoelectricAbsorption{typeof(table),T}(table, ηH)
+    return PhotoelectricAbsorption{typeof(table), T}(table, ηH)
 end
 PhotoelectricAbsorption(; ηH = FitParam(1.0)) = PhotoelectricAbsorption(ηH)
 register_model_data(PhotoelectricAbsorption, "cross_sections_phabs_angr.jld")
 @inline @fastmath function invoke!(flux, energy, model::PhotoelectricAbsorption)
     let ηH = model.ηH, table = model.table
-        E = @views energy[1:(end-1)]
+        E = @views energy[1:(end - 1)]
         @. flux = exp(-ηH * table(E))
     end
 end
@@ -29,7 +29,7 @@ end
 
 $(FIELDS)
 """
-struct Constant{T} <: AbstractSpectralModel{T,Multiplicative}
+struct Constant{T} <: AbstractSpectralModel{T, Multiplicative}
     "Constant value."
     value::T
 end

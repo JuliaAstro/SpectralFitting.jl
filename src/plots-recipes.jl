@@ -17,9 +17,9 @@ plotting_domain(dataset::InjectiveData) = dataset.domain
 end
 
 @recipe function _plotting_func(
-    dataset::AbstractDataset;
-    data_layout = ContiguouslyBinned(),
-)
+        dataset::AbstractDataset;
+        data_layout = ContiguouslyBinned(),
+    )
     seriestype --> :scatter
     markersize --> 0.5
     markershape --> :none
@@ -53,7 +53,7 @@ end
 @recipe function _plotting_func(slice::FitResultSlice)
     label -->
     statistic_symbol(fit_statistic(slice.parent.config)) *
-    Printf.@sprintf("=%.2f", slice.stats)
+        Printf.@sprintf("=%.2f", slice.stats)
     seriestype --> :stepmid
     x = plotting_domain(slice)
     y = calculate_objective!(slice, slice.u)
@@ -64,11 +64,8 @@ end
 # ratio plots
 @userplot RatioPlot
 @recipe function _plotting_func(
-    r::RatioPlot;
-    datacolor = :auto,
-    modelcolor = :auto,
-    label = :auto,
-)
+        r::RatioPlot; datacolor = :auto, modelcolor = :auto, label = :auto,
+    )
     if length(r.args) != 1 || !(typeof(r.args[1]) <: AbstractFittingResult)
         error(
             "Ratio plots first argument must be `AbstractDataset` and second argument of type `AbstractFittingResult`.",
@@ -86,7 +83,7 @@ end
     xlabel --> "Energy (keV)"
     minorgrid --> true
 
-    if (label == :auto)
+    if label == :auto
         label = make_label(data)
     end
 
@@ -115,7 +112,7 @@ end
 @userplot ResidualPlot
 @recipe function _plotting_fun(r::ResidualPlot)
     slices = if r.args[1] isa FitResult
-        [r.args[1][i] for i = 1:result_count(r.args[1])]
+        [r.args[1][i] for i in 1:result_count(r.args[1])]
     else
         @assert r.args[1] isa FitResultSlice
         [r.args[1]]
@@ -140,12 +137,8 @@ end
 # unfolded plots
 @userplot UnfoldedPlot
 @recipe function _plotting_fun(
-    r::UnfoldedPlot;
-    pow = 2,
-    datacolor = :auto,
-    modelcolor = :auto,
-    label = :auto,
-)
+        r::UnfoldedPlot; pow = 2, datacolor = :auto, modelcolor = :auto, label = :auto,
+    )
     if length(r.args) != 1 || !(typeof(r.args[1]) <: AbstractFittingResult)
         error(
             "Unfolded plots first argument must be `AbstractDataset` and second argument of type `AbstractFittingResult`.",
@@ -173,7 +166,7 @@ end
     xlabel --> "Energy (keV)"
     minorgrid --> true
 
-    if (label == :auto)
+    if label == :auto
         label = make_label(data)
     end
 

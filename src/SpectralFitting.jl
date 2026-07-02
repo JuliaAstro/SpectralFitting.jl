@@ -89,6 +89,7 @@ include("plots-recipes.jl")
 function __init__()
     # check if we have the minimum model data already
     _check_model_directory_present()
+    return
 end
 
 end # module

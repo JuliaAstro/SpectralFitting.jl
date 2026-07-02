@@ -33,15 +33,13 @@ invokemodel(energy, XS_PowerLaw())
                          E (keV)
 ```
 """
-@xspecmodel :C_powerlaw struct XS_PowerLaw{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_powerlaw struct XS_PowerLaw{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Photon index."
     a::T
 end
-function XS_PowerLaw(; K = FitParam(1.0), a = FitParam(1.0))
-    XS_PowerLaw(K, a)
-end
+XS_PowerLaw(; K = FitParam(1.0), a = FitParam(1.0)) = XS_PowerLaw(K, a)
 
 """
     XS_CutOffPowerLaw(K, Γ, Ecut, z)
@@ -81,7 +79,7 @@ Flux    │                             '..        │
                         Energy (keV)
 ```
 """
-@xspecmodel :C_zcutoffpl struct XS_CutOffPowerLaw{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_zcutoffpl struct XS_CutOffPowerLaw{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Photon index."
@@ -92,12 +90,12 @@ Flux    │                             '..        │
     z::T
 end
 function XS_CutOffPowerLaw(;
-    K = FitParam(1.0),
-    Γ = FitParam(2.0),
-    Ecut = FitParam(15.0),
-    z = FitParam(0.0, frozen = true),
-)
-    XS_CutOffPowerLaw(K, Γ, Ecut, z)
+        K = FitParam(1.0),
+        Γ = FitParam(2.0),
+        Ecut = FitParam(15.0),
+        z = FitParam(0.0, frozen = true),
+    )
+    return XS_CutOffPowerLaw(K, Γ, Ecut, z)
 end
 
 """
@@ -135,15 +133,13 @@ invokemodel(energy, XS_BlackBody())
                          E (keV)
 ```
 """
-@xspecmodel :C_bbody struct XS_BlackBody{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_bbody struct XS_BlackBody{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Temperature (keV)."
     T::T
 end
-function XS_BlackBody(; K = FitParam(1.0), T = FitParam(3.0))
-    XS_BlackBody(K, T)
-end
+XS_BlackBody(; K = FitParam(1.0), T = FitParam(3.0)) = XS_BlackBody(K, T)
 
 """
     XS_BremsStrahlung(K, T)
@@ -180,15 +176,13 @@ invokemodel(energy, XS_BremsStrahlung())
                        E (keV)
 ```
 """
-@xspecmodel :C_bremss struct XS_BremsStrahlung{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_bremss struct XS_BremsStrahlung{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Plasma temperature (keV)."
     T::T
 end
-function XS_BremsStrahlung(; K = FitParam(1.0), T = FitParam(7.0))
-    XS_BremsStrahlung(K, T)
-end
+XS_BremsStrahlung(; K = FitParam(1.0), T = FitParam(7.0)) = XS_BremsStrahlung(K, T)
 
 
 """
@@ -226,7 +220,7 @@ invokemodel(energy, XS_KerrDisk())
                           E (keV)
 ```
 """
-@xspecmodel :C_kerrdisk struct XS_KerrDisk{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_kerrdisk struct XS_KerrDisk{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Rest frame line energy (keV)."
@@ -249,18 +243,18 @@ invokemodel(energy, XS_KerrDisk())
     z::T
 end
 function XS_KerrDisk(;
-    K = FitParam(1.0),
-    lineE = FitParam(6.4, frozen = true),
-    index1 = FitParam(3.0, frozen = true),
-    index2 = FitParam(3.0, frozen = true),
-    break_r = FitParam(6.0, frozen = true),
-    a = FitParam(0.998, lower_limit = 0, upper_limit = 0.998),
-    θ = FitParam(30.0, lower_limit = 0, upper_limit = 90.0),
-    inner_r = FitParam(1.0, frozen = true),
-    outer_r = FitParam(400.0, frozen = true),
-    z = FitParam(0.0, frozen = true),
-)
-    XS_KerrDisk(K, lineE, index1, index2, break_r, a, θ, inner_r, outer_r, z)
+        K = FitParam(1.0),
+        lineE = FitParam(6.4, frozen = true),
+        index1 = FitParam(3.0, frozen = true),
+        index2 = FitParam(3.0, frozen = true),
+        break_r = FitParam(6.0, frozen = true),
+        a = FitParam(0.998, lower_limit = 0, upper_limit = 0.998),
+        θ = FitParam(30.0, lower_limit = 0, upper_limit = 90.0),
+        inner_r = FitParam(1.0, frozen = true),
+        outer_r = FitParam(400.0, frozen = true),
+        z = FitParam(0.0, frozen = true),
+    )
+    return XS_KerrDisk(K, lineE, index1, index2, break_r, a, θ, inner_r, outer_r, z)
 end
 
 
@@ -299,7 +293,7 @@ invokemodel(energy, XS_KyrLine())
                           E (keV)
 ```
 """
-@xspecmodel :C_kyrline struct XS_KyrLine{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_kyrline struct XS_KyrLine{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Dimensionless black hole spin."
@@ -324,20 +318,20 @@ invokemodel(energy, XS_KyrLine())
     limb::T
 end
 function XS_KyrLine(;
-    K = FitParam(1.0),
-    a = FitParam(0.998, lower_limit = 0, upper_limit = 1.0),
-    θ = FitParam(30.0),
-    inner_r = FitParam(1.0, frozen = true),
-    ms_flag = FitParam(0.0, frozen = true),
-    outer_r = FitParam(400.0, frozen = true),
-    lineE = FitParam(6.4, frozen = true),
-    α = FitParam(3.0, frozen = true),
-    β = FitParam(3.0, frozen = true),
-    break_r = FitParam(6.0, frozen = true),
-    z = FitParam(0.0, frozen = true),
-    limb = FitParam(1.0, frozen = true),
-)
-    XS_KyrLine(K, a, θ, inner_r, ms_flag, outer_r, lineE, α, β, break_r, z, limb)
+        K = FitParam(1.0),
+        a = FitParam(0.998, lower_limit = 0, upper_limit = 1.0),
+        θ = FitParam(30.0),
+        inner_r = FitParam(1.0, frozen = true),
+        ms_flag = FitParam(0.0, frozen = true),
+        outer_r = FitParam(400.0, frozen = true),
+        lineE = FitParam(6.4, frozen = true),
+        α = FitParam(3.0, frozen = true),
+        β = FitParam(3.0, frozen = true),
+        break_r = FitParam(6.0, frozen = true),
+        z = FitParam(0.0, frozen = true),
+        limb = FitParam(1.0, frozen = true),
+    )
+    return XS_KyrLine(K, a, θ, inner_r, ms_flag, outer_r, lineE, α, β, break_r, z, limb)
 end
 
 
@@ -376,7 +370,7 @@ invokemodel(energy, XS_Laor())
                           E (keV)
 ```
 """
-@xspecmodel :C_laor struct XS_Laor{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_laor struct XS_Laor{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Rest frame line energy (keV)."
@@ -391,14 +385,14 @@ invokemodel(energy, XS_Laor())
     θ::T
 end
 function XS_Laor(;
-    K = FitParam(1.0),
-    lineE = FitParam(6.4),
-    a = FitParam(3.0, frozen = true),
-    inner_r = FitParam(1.235, frozen = true),
-    outer_r = FitParam(400.0, frozen = true),
-    θ = FitParam(30.0, upper_limit = 180, frozen = true),
-)
-    XS_Laor(K, lineE, a, inner_r, outer_r, θ)
+        K = FitParam(1.0),
+        lineE = FitParam(6.4),
+        a = FitParam(3.0, frozen = true),
+        inner_r = FitParam(1.235, frozen = true),
+        outer_r = FitParam(400.0, frozen = true),
+        θ = FitParam(30.0, upper_limit = 180, frozen = true),
+    )
+    return XS_Laor(K, lineE, a, inner_r, outer_r, θ)
 end
 
 """
@@ -436,7 +430,7 @@ invokemodel(energy, XS_DiskLine())
                           E (keV)
 ```
 """
-@xspecmodel :C_diskline struct XS_DiskLine{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_diskline struct XS_DiskLine{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Rest frame line energy (keV)."
@@ -451,14 +445,14 @@ invokemodel(energy, XS_DiskLine())
     θ::T
 end
 function XS_DiskLine(;
-    K = FitParam(1.0),
-    lineE = FitParam(6.7),
-    β = FitParam(-2.0, frozen = true),
-    inner_r = FitParam(10.0, frozen = true),
-    outer_r = FitParam(1000.0, frozen = true),
-    θ = FitParam(30.0, upper_limit = 180, frozen = true),
-)
-    XS_DiskLine(K, lineE, β, inner_r, outer_r, θ)
+        K = FitParam(1.0),
+        lineE = FitParam(6.7),
+        β = FitParam(-2.0, frozen = true),
+        inner_r = FitParam(10.0, frozen = true),
+        outer_r = FitParam(1000.0, frozen = true),
+        θ = FitParam(30.0, upper_limit = 180, frozen = true),
+    )
+    return XS_DiskLine(K, lineE, β, inner_r, outer_r, θ)
 end
 
 """
@@ -496,7 +490,7 @@ invokemodel(energy, XS_Gaussian())
                           E (keV)
 ```
 """
-@xspecmodel :C_gaussian struct XS_Gaussian{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_gaussian struct XS_Gaussian{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation"
     K::T
     "Line energy in keV."
@@ -505,11 +499,11 @@ invokemodel(energy, XS_Gaussian())
     σ::T
 end
 function XS_Gaussian(;
-    K = FitParam(1.0),
-    E = FitParam(6.4, frozen = true),
-    σ = FitParam(1.0),
-)
-    XS_Gaussian(K, E, σ)
+        K = FitParam(1.0),
+        E = FitParam(6.4, frozen = true),
+        σ = FitParam(1.0),
+    )
+    return XS_Gaussian(K, E, σ)
 end
 
 """
@@ -549,7 +543,7 @@ Flux    │'          ':                           │
                         Energy (keV)
 ```
 """
-@xspecmodel :C_jet struct XS_Jet{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_jet struct XS_Jet{T} <: AbstractSpectralModel{T, Additive}
     "MUST BE FIXED AT UNITY as the jet spectrum normalisation is set by the relativisitic particle power."
     K::T
     "Black hole mass in solar masses."
@@ -584,90 +578,90 @@ Flux    │'          ':                           │
     z::T
 end
 function XS_Jet(;
-    K = FitParam(1.0, frozen = true, lower_limit = 1.0, upper_limit = 1.0, error = 0.01),
-    mass = FitParam(
-        1.0e9,
-        frozen = true,
-        lower_limit = 1.0,
-        upper_limit = 1.0e10,
-        error = 1.0e7,
-    ),
-    Dco = FitParam(
-        3350.6,
-        frozen = true,
-        lower_limit = 1.0,
-        upper_limit = 1.0e8,
-        error = 33.506,
-    ),
-    log_mdot = FitParam(
-        -1.0,
-        frozen = false,
-        lower_limit = -5.0,
-        upper_limit = 2.0,
-        error = 0.01,
-    ),
-    thetaobs = FitParam(
-        3.0,
-        frozen = true,
-        lower_limit = 0.0,
-        upper_limit = 90.0,
-        error = 0.03,
-    ),
-    BulkG = FitParam(
-        13.0,
-        frozen = true,
-        lower_limit = 1.0,
-        upper_limit = 100.0,
-        error = 0.13,
-    ),
-    phi = FitParam(
-        0.1,
-        frozen = true,
-        lower_limit = 0.01,
-        upper_limit = 100.0,
-        error = 0.001,
-    ),
-    zdiss = FitParam(
-        1275.0,
-        frozen = true,
-        lower_limit = 10.0,
-        upper_limit = 10000.0,
-        error = 0.026,
-    ),
-    B = FitParam(2.6, frozen = true, lower_limit = 0.01, upper_limit = 15.0, error = 0.026),
-    logPrel = FitParam(
-        43.3,
-        frozen = true,
-        lower_limit = 40.0,
-        upper_limit = 48.0,
-        error = 0.433,
-    ),
-    gmin_inj = FitParam(
-        1.0,
-        frozen = true,
-        lower_limit = 1.0,
-        upper_limit = 1000.0,
-        error = 0.01,
-    ),
-    gbreak = FitParam(
-        300.0,
-        frozen = true,
-        lower_limit = 10.0,
-        upper_limit = 10_000.0,
-        error = 3.0,
-    ),
-    gmax = FitParam(
-        3000.0,
-        frozen = true,
-        lower_limit = 1000.0,
-        upper_limit = 1.0e6,
-        error = 30.0,
-    ),
-    s1 = FitParam(1.0, frozen = true, lower_limit = -1.0, upper_limit = 1.0, error = 0.01),
-    s2 = FitParam(2.7, frozen = true, lower_limit = 1.0, upper_limit = 5.0, error = 0.027),
-    z = FitParam(0.0, frozen = true, lower_limit = 0.0, upper_limit = 10.0, error = 1.0),
-)
-    XS_Jet(
+        K = FitParam(1.0, frozen = true, lower_limit = 1.0, upper_limit = 1.0, error = 0.01),
+        mass = FitParam(
+            1.0e9,
+            frozen = true,
+            lower_limit = 1.0,
+            upper_limit = 1.0e10,
+            error = 1.0e7,
+        ),
+        Dco = FitParam(
+            3350.6,
+            frozen = true,
+            lower_limit = 1.0,
+            upper_limit = 1.0e8,
+            error = 33.506,
+        ),
+        log_mdot = FitParam(
+            -1.0,
+            frozen = false,
+            lower_limit = -5.0,
+            upper_limit = 2.0,
+            error = 0.01,
+        ),
+        thetaobs = FitParam(
+            3.0,
+            frozen = true,
+            lower_limit = 0.0,
+            upper_limit = 90.0,
+            error = 0.03,
+        ),
+        BulkG = FitParam(
+            13.0,
+            frozen = true,
+            lower_limit = 1.0,
+            upper_limit = 100.0,
+            error = 0.13,
+        ),
+        phi = FitParam(
+            0.1,
+            frozen = true,
+            lower_limit = 0.01,
+            upper_limit = 100.0,
+            error = 0.001,
+        ),
+        zdiss = FitParam(
+            1275.0,
+            frozen = true,
+            lower_limit = 10.0,
+            upper_limit = 10000.0,
+            error = 0.026,
+        ),
+        B = FitParam(2.6, frozen = true, lower_limit = 0.01, upper_limit = 15.0, error = 0.026),
+        logPrel = FitParam(
+            43.3,
+            frozen = true,
+            lower_limit = 40.0,
+            upper_limit = 48.0,
+            error = 0.433,
+        ),
+        gmin_inj = FitParam(
+            1.0,
+            frozen = true,
+            lower_limit = 1.0,
+            upper_limit = 1000.0,
+            error = 0.01,
+        ),
+        gbreak = FitParam(
+            300.0,
+            frozen = true,
+            lower_limit = 10.0,
+            upper_limit = 10_000.0,
+            error = 3.0,
+        ),
+        gmax = FitParam(
+            3000.0,
+            frozen = true,
+            lower_limit = 1000.0,
+            upper_limit = 1.0e6,
+            error = 30.0,
+        ),
+        s1 = FitParam(1.0, frozen = true, lower_limit = -1.0, upper_limit = 1.0, error = 0.01),
+        s2 = FitParam(2.7, frozen = true, lower_limit = 1.0, upper_limit = 5.0, error = 0.027),
+        z = FitParam(0.0, frozen = true, lower_limit = 0.0, upper_limit = 10.0, error = 1.0),
+    )
+    return XS_Jet(
         K,
         mass,
         Dco,
@@ -721,7 +715,7 @@ invokemodel(energy, XS_Optxagnf())
                                           E (keV)
 ```
 """
-@xspecmodel :C_optxagnf struct XS_Optxagnf{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_optxagnf struct XS_Optxagnf{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation must be frozen."
     K::T
     "Black hole mass in solar masses."
@@ -748,88 +742,86 @@ invokemodel(energy, XS_Optxagnf())
     z::T
 end
 function XS_Optxagnf(;
-    K = FitParam(1.0, frozen = true, lower_limit = 1.0, upper_limit = 1.0, error = 0.01),
-    mass = FitParam(
-        1.0e7,
-        frozen = true,
-        lower_limit = 1.0,
-        upper_limit = 1.0e10,
-        error = 1.0e5,
-    ),
-    Dco = FitParam(
-        100.0,
-        frozen = true,
-        lower_limit = 0.01,
-        upper_limit = 1.0e9,
-        error = 10,
-    ),
-    logLoLEdd = FitParam(
-        -1.0,
-        frozen = false,
-        lower_limit = -10.0,
-        upper_limit = 2.0,
-        error = 0.01,
-    ),
-    astar = FitParam(
-        0.0,
-        frozen = true,
-        lower_limit = 0.0,
-        upper_limit = 0.998,
-        error = 0.01,
-    ),
-    rcor = FitParam(
-        10.0,
-        frozen = false,
-        lower_limit = 1.0,
-        upper_limit = 100.0,
-        error = 0.1,
-    ),
-    logrout = FitParam(
-        5.0,
-        frozen = true,
-        lower_limit = 3.0,
-        upper_limit = 7.0,
-        error = 0.01,
-    ),
-    kT_e = FitParam(
-        0.2,
-        frozen = false,
-        lower_limit = 0.01,
-        upper_limit = 10.0,
-        error = 0.01,
-    ),
-    τ = FitParam(10.0, frozen = false, lower_limit = 0.1, upper_limit = 100.0, error = 0.1),
-    Gamma = FitParam(
-        2.1,
-        frozen = false,
-        lower_limit = 1.05,
-        upper_limit = 5.0,
-        error = 0.01,
-    ),
-    fpl = FitParam(
-        1.0e-4,
-        frozen = false,
-        lower_limit = 0.0,
-        upper_limit = 1.0,
-        error = 0.01,
-    ),
-    z = FitParam(0.0, frozen = true, lower_limit = 0.0, upper_limit = 10.0, error = 1.0),
-)
-    XS_Optxagnf(K, mass, Dco, logLoLEdd, astar, rcor, logrout, kT_e, τ, Gamma, fpl, z)
+        K = FitParam(1.0, frozen = true, lower_limit = 1.0, upper_limit = 1.0, error = 0.01),
+        mass = FitParam(
+            1.0e7,
+            frozen = true,
+            lower_limit = 1.0,
+            upper_limit = 1.0e10,
+            error = 1.0e5,
+        ),
+        Dco = FitParam(
+            100.0,
+            frozen = true,
+            lower_limit = 0.01,
+            upper_limit = 1.0e9,
+            error = 10,
+        ),
+        logLoLEdd = FitParam(
+            -1.0,
+            frozen = false,
+            lower_limit = -10.0,
+            upper_limit = 2.0,
+            error = 0.01,
+        ),
+        astar = FitParam(
+            0.0,
+            frozen = true,
+            lower_limit = 0.0,
+            upper_limit = 0.998,
+            error = 0.01,
+        ),
+        rcor = FitParam(
+            10.0,
+            frozen = false,
+            lower_limit = 1.0,
+            upper_limit = 100.0,
+            error = 0.1,
+        ),
+        logrout = FitParam(
+            5.0,
+            frozen = true,
+            lower_limit = 3.0,
+            upper_limit = 7.0,
+            error = 0.01,
+        ),
+        kT_e = FitParam(
+            0.2,
+            frozen = false,
+            lower_limit = 0.01,
+            upper_limit = 10.0,
+            error = 0.01,
+        ),
+        τ = FitParam(10.0, frozen = false, lower_limit = 0.1, upper_limit = 100.0, error = 0.1),
+        Gamma = FitParam(
+            2.1,
+            frozen = false,
+            lower_limit = 1.05,
+            upper_limit = 5.0,
+            error = 0.01,
+        ),
+        fpl = FitParam(
+            1.0e-4,
+            frozen = false,
+            lower_limit = 0.0,
+            upper_limit = 1.0,
+            error = 0.01,
+        ),
+        z = FitParam(0.0, frozen = true, lower_limit = 0.0, upper_limit = 10.0, error = 1.0),
+    )
+    return XS_Optxagnf(K, mass, Dco, logLoLEdd, astar, rcor, logrout, kT_e, τ, Gamma, fpl, z)
 end
 
 """
 - https://heasarc.gsfc.nasa.gov/xanadu/xspec/manual/XSmodelDiskbb.html
 """
-@xspecmodel :C_diskbb struct XS_DiskBlackBody{T} <: AbstractSpectralModel{T,Additive}
+@xspecmodel :C_diskbb struct XS_DiskBlackBody{T} <: AbstractSpectralModel{T, Additive}
     "Normalisation."
     K::T
     "Inner disc temperature in keV."
     T::T
 end
-function XS_DiskBlackBody(; K = FitParam(1.0), T = FitParam(0.25))
-    XS_DiskBlackBody(K, T)
-end
+XS_DiskBlackBody(; K = FitParam(1.0), T = FitParam(0.25)) = XS_DiskBlackBody(K, T)
 
 export XS_PowerLaw,
     XS_CutOffPowerLaw,

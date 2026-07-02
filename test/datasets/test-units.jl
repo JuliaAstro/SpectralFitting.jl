@@ -1,7 +1,6 @@
 using SpectralFitting, Test
 
 
-
 data = make_dummy_dataset(collect(range(1.0, 0.0, 10)), collect(range(0, 15.0, 11)))
 
 # this really needs to be compile time known

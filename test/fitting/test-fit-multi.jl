@@ -2,7 +2,6 @@ using Test
 using SpectralFitting
 
 
-
 # generate some fake powerlaw data with three components
 dummy_data = make_dummy_dataset(
     (E) -> (E^(-0.1) + E^(-3.0) + E^(-1.0));
@@ -24,10 +23,10 @@ res1 = result[1]
 res2 = result[2]
 
 # both models should fit more or less the same
-@test res1.u ≈ res2.u atol = 1e-2
-@test res1.stats ≈ res2.stats atol = 1e-2
+@test res1.u ≈ res2.u atol = 1.0e-2
+@test res1.stats ≈ res2.stats atol = 1.0e-2
 
-# now change second models data to ensure the normalisations fit independelty 
+# now change second models data to ensure the normalisations fit independelty
 dummy_data2 = deepcopy(dummy_data)
 dummy_data2.spectrum.data .*= 3.0
 
@@ -65,8 +64,8 @@ prob = FittingProblem(
 # ensure we can fit this fine
 result = fit(prob, LevenbergMarquadt())
 
-@test result[1].stats ≈ 2.86 atol = 1e-2
-@test result[2].stats ≈ 0.079 atol = 1e-3
+@test result[1].stats ≈ 2.86 atol = 1.0e-2
+@test result[2].stats ≈ 0.079 atol = 1.0e-3
 
 # and we can still bind
 prob = FittingProblem(

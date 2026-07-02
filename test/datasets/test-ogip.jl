@@ -21,8 +21,8 @@ arf_xmm = OGIP.read_ancillary_response(xmm_arf_path)
 @inferred OGIP.read_ancillary_response(xmm_arf_path)
 arf_nustar = OGIP.read_ancillary_response(nustar_arf_path)
 
-@test arf_xmm.bins_low ≈ rmf_xmm.bins_low atol = 1e-7
-@test arf_nustar.bins_low ≈ rmf_nustar.bins_low atol = 1e-3
+@test arf_xmm.bins_low ≈ rmf_xmm.bins_low atol = 1.0e-7
+@test arf_nustar.bins_low ≈ rmf_nustar.bins_low atol = 1.0e-3
 
 # test reading spectra
 xmm_spec_path = joinpath(testdir, "xmm/pn_spec_grp.fits")

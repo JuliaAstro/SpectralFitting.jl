@@ -2,7 +2,6 @@ using SpectralFitting
 using Test
 
 
-
 # single model
 m = PowerLaw()
 m2 = copy(m)

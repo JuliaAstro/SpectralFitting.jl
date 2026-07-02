@@ -33,14 +33,13 @@ invokemodel(energy, XS_PhotoelectricAbsorption())
                        E (keV)
 ```
 """
-@xspecmodel :C_phabs struct XS_PhotoelectricAbsorption{T} <:
-                            AbstractSpectralModel{T,Multiplicative}
+@xspecmodel :C_phabs struct XS_PhotoelectricAbsorption{T} <: AbstractSpectralModel{
+        T, Multiplicative,
+    }
     "Equivalent hydrogen column (units of 10²² atoms per cm⁻²)."
     ηH::T
 end
-function XS_PhotoelectricAbsorption(; ηH = FitParam(1.0))
-    XS_PhotoelectricAbsorption(ηH)
-end
+XS_PhotoelectricAbsorption(; ηH = FitParam(1.0)) = XS_PhotoelectricAbsorption(ηH)
 
 """
     XS_WarmAbsorption(ηH, Ew)
@@ -77,15 +76,13 @@ invokemodel(energy, XS_WarmAbsorption())
                          E (keV)
 ```
 """
-@xspecmodel :C_wndabs struct XS_WarmAbsorption{T} <: AbstractSpectralModel{T,Multiplicative}
+@xspecmodel :C_wndabs struct XS_WarmAbsorption{T} <: AbstractSpectralModel{T, Multiplicative}
     "Equivalent hydrogen column (units of 10²² atoms per cm⁻²)."
     ηH::T
     "Window energy (keV)."
     Ew::T
 end
-function XS_WarmAbsorption(; ηH = FitParam(1.0), Ew = FitParam(1.0))
-    XS_WarmAbsorption(ηH, Ew)
-end
+XS_WarmAbsorption(; ηH = FitParam(1.0), Ew = FitParam(1.0)) = XS_WarmAbsorption(ηH, Ew)
 
 """
     XS_NeutralHydrogenAbsorption(nH)
@@ -123,13 +120,10 @@ invokemodel(energy, XS_NeutralHydrogenAbsorption())
 ```
 """
 @xspecmodel :C_tbabs struct XS_NeutralHydrogenAbsorption{T} <:
-                            AbstractSpectralModel{T,Multiplicative}
+    AbstractSpectralModel{T, Multiplicative}
     "Neutral hydrogen column density (units of 10²² atoms per cm⁻²)"
     nH::T
 end
-
-function XS_NeutralHydrogenAbsorption(; nH = FitParam(1.0))
-    XS_NeutralHydrogenAbsorption(nH)
-end
+XS_NeutralHydrogenAbsorption(; nH = FitParam(1.0)) = XS_NeutralHydrogenAbsorption(nH)
 
 export XS_PhotoelectricAbsorption, XS_WarmAbsorption, XS_NeutralHydrogenAbsorption

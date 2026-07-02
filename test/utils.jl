@@ -1,4 +1,3 @@
-
 """
     @ciskip expression
 
@@ -6,7 +5,7 @@ Skip the test if `CI` environment variable is test. Used to ignore tests that re
 from the astro servers.
 """
 macro ciskip(expression)
-    quote
+    return quote
         if get(ENV, "CI", false) == false
             $expression
         else
@@ -17,9 +16,9 @@ end
 
 # add a comparison operator for models
 function Base.:(==)(
-    m1::SpectralFitting.AbstractSpectralModel,
-    m2::SpectralFitting.AbstractSpectralModel,
-)
+        m1::SpectralFitting.AbstractSpectralModel,
+        m2::SpectralFitting.AbstractSpectralModel,
+    )
     if typeof(m1) !== typeof(m2)
         return false
     end

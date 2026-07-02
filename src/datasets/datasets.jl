@@ -47,10 +47,12 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(data::AbstractDatas
     _printinfo(IOContext(buff, io), data)
     s = String(take!(buff))
     print(io, encapsulate(s))
+    return
 end
 
 function Base.show(io::IO, @nospecialize(data::AbstractDataset))
     print(io, "$(Base.typename(typeof(data)).name)[$(make_label(data))]")
+    return
 end
 
 
@@ -128,17 +130,13 @@ end
 """
 function objective_transformer(layout::AbstractDataLayout, dataset::AbstractDataset)
     @warn "Using default objective transformer!"
-    _DEFAULT_TRANSFORMER()
+    return _DEFAULT_TRANSFORMER()
 end
 
 function _DEFAULT_TRANSFORMER()
-    function _transformer!!(domain, objective)
-        objective
-    end
-    function _transformer!!(output, domain, objective)
-        @. output = objective
-    end
-    _transformer!!
+    _transformer!!(domain, objective) = objective
+    _transformer!!(output, domain, objective) = (@. output = objective)
+    return _transformer!!
 end
 
 """
@@ -156,7 +154,7 @@ If undefined for a derived type, returns `nothing`.
 
 See also [`support_units`](@ref).
 """
-preferred_units(::T, s::AbstractStatistic) where {T<:AbstractDataset} =
+preferred_units(::T, s::AbstractStatistic) where {T <: AbstractDataset} =
     preferred_units(T, s)
 preferred_units(::Type{<:AbstractDataset}, s::AbstractStatistic) = nothing
 
@@ -185,7 +183,7 @@ abstract type AbstractMultiDataset <: AbstractDataset end
 get_datasets(data::AbstractMultiDataset) = data.datasets
 
 function _combine_all(f, data::AbstractMultiDataset, args)
-    reduce(vcat, (f(args..., d) for d in get_datasets(data)))
+    return reduce(vcat, (f(args..., d) for d in get_datasets(data)))
 end
 
 function _printinfo(io::IO, data::AbstractMultiDataset)
@@ -194,6 +192,7 @@ function _printinfo(io::IO, data::AbstractMultiDataset)
     for d in datasets
         println(io, d)
     end
+    return
 end
 
 make_objective(layout::AbstractDataLayout, data::AbstractMultiDataset) =
