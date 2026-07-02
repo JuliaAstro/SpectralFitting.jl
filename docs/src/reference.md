@@ -4,6 +4,7 @@
 
 ```@docs
 SpectralFitting.AbstractMultiDataset
+SpectralFitting.AbstractStatistic
 SpectralFitting.ParameterTriple
 SpectralFitting.AbstractTableModel
 SpectralFitting.Constant
