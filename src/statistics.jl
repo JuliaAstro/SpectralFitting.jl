@@ -1,3 +1,8 @@
+"""
+$(TYPEDEF)
+
+Abstract supertype for all statistic measures.
+"""
 abstract type AbstractStatistic end
 statistic_symbol(s::AbstractStatistic) = Base.typename(typeof(s)).name
 reduced_statistic_symbol(s::AbstractStatistic) = statistic_symbol(s) * "_reduced"
