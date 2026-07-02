@@ -172,7 +172,7 @@ function calculate_objective!(config::FittingConfig, u0)
 end
 
 function _unpack_config(prob::FittingProblem; stat = ChiSquared(), kwargs...)
-    config = FittingConfig(prob; stat = stat)
+    config = FittingConfig(prob; stat)
     return kwargs, config
 end
 
@@ -180,15 +180,9 @@ function supports_autodiff(cfg::FittingConfig)
     return all(implementation(m) isa JuliaImplementation for m in cfg.prob.model.m)
 end
 
-function Base.show(io::IO, @nospecialize(config::FittingConfig))
-    descr = "FittingConfig"
-    return print(io, descr)
-end
-
-function Base.show(io::IO, ::MIME"text/plain", @nospecialize(config::FittingConfig))
-    descr = "FittingConfig"
-    return print(io, descr)
-end
+Base.show(io::IO, @nospecialize(config::FittingConfig)) = print(io, "FittingConfig")
+Base.show(io::IO, ::MIME"text/plain", @nospecialize(config::FittingConfig)) =
+    print(io, "FittingConfig")
 
 _get_data_cache(config::FittingConfig) = config.data_cache
 get_objective(config::FittingConfig) = ((i.objective for i in _get_data_cache(config))...,)
