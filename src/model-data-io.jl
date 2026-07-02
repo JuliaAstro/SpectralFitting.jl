@@ -81,8 +81,8 @@ consequently model data is only downloaded when needed.
 
 !!! note
     It is good practice to use this method immediately after defining a new
-    model with [`@xspecmodel`](@ref) to register any required datafiles from
-    the HEASoft source code, and therefore keep relevant information together.
+    model with [`XSPECModels.@xspecmodel`](@ref) to register any required datafiles
+    from the HEASoft source code, and therefore keep relevant information together.
 
 # Example
 

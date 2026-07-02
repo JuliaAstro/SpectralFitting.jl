@@ -138,7 +138,7 @@ Note we have set the random number generator seed with `seed = 42` to allow our 
 
 The `goodness` command will return the percent of simulations with a fit statistic better than the result, in addition to the statistics of each individual trial.
 
-Next we want to calculate the flux in an energy range observed by the detector. We can do this with [`LogFlux`](@ref) or [`XS_CalculateFlux`](@ref), as they are both equivalent implementations.
+Next we want to calculate the flux in an energy range observed by the detector. We can do this with [`Log10Flux`](@ref) or [`XS_CalculateFlux`](@ref), as they are both equivalent implementations.
 
 We can modify our model by accessing properties from the model card and writing a new expression:
 

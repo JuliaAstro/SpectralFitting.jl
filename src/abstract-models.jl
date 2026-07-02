@@ -61,7 +61,7 @@ struct Convolutional <: AbstractSpectralModelKind end
     abstract type AbstractSpectralModel{T,K<:AbstractSpectralModelKind} end
 
 Supertype of all spectral models, tracking the number type `T` and
-[`AbstractSpectralModelKind`](@def) denoted `K`.
+[`AbstractSpectralModelKind`](@ref) denoted `K`.
 
 ## Implementation
 
