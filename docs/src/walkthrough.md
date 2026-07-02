@@ -389,11 +389,8 @@ Using PairPlots.jl to create corner plots:
 ```@example walk
 import PairPlots, Makie, CairoMakie
 
-table = (; # named tuple syntax
-    K = vec(chain["K"]),
-    a = vec(chain["a"]),
-    ηH = vec(chain["ηH"])
-)
+# named tuple syntax
+table = (; K = vec(chain[:K]), a = vec(chain[:a]), ηH = vec(chain[:ηH]))
 
 PairPlots.pairplot(table)
 ```
