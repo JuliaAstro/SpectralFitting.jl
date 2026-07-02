@@ -18,7 +18,7 @@ The first thing we want to do is load our datasets. Unlike in XSPEC, we have no 
 using SpectralFitting, XSPECModels, Plots
 
 DATADIR = "..."
-DATADIR = length(get(ENV, "CI", "")) > 0 ? @__DIR__() * "/../../ex-datadir" : expanduser("~/developer/jl/ex-datadir") # hide
+DATADIR = normpath(@__DIR__(), "..", "..", "ex-datadir") # hide
 spec1_path = joinpath(DATADIR, "s54405.pha")
 data = OGIPDataset(spec1_path)
 ```
