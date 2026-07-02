@@ -161,7 +161,7 @@ function _inner_invokemodel!(
     end
     # set the output
     @. output = output_cache
-    return
+    return output
 end
 
 export AutoCache

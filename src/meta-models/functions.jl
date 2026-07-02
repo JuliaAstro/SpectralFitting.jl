@@ -106,7 +106,7 @@ function _inner_invokemodel!(output, domain, model::AsConvolution{M, T}) where {
 
     # overwrite the output
     @. output = convolution_cache
-    return
+    return output
 end
 
 export AsConvolution
