@@ -4,6 +4,7 @@
 
 ```@docs
 SpectralFitting.AbstractMultiDataset
+SpectralFitting.AbstractStatistic
 SpectralFitting.ParameterTriple
 SpectralFitting.AbstractTableModel
 SpectralFitting.Constant
@@ -31,4 +32,6 @@ XSPECModels.XS_Optxagnf
 XSPECModels.XS_Jet
 XSPECModels.XS_CutOffPowerLaw
 XSPECModels.XS_Kerrconv
+XSPECModels._safe_ffi_invoke!
+XSPECModels._unsafe_ffi_invoke!
 ```

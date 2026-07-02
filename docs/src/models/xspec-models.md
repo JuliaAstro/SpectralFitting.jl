@@ -20,7 +20,7 @@ using SpectralFitting, XSPECModels
     The convention is that models that have are imported from XSPEC or have XSPEC ABI are prefixed with `XS_` in their name. For example, the XSPEC equivalent of [`PowerLaw`](@ref) is [`XS_PowerLaw`](@ref).
 
 
-The XSPEC models are wrapped into SpectralFitting models using the [`@xspecmodel`] macro. If a model you require is not already wrapped, this macro will make that easy to do. Please consider upstreaming your wrapper via a PR to the SpectralFitting GitHub repository.
+The XSPEC models are wrapped into SpectralFitting models using the [`XSPECModels.@xspecmodel`] macro. If a model you require is not already wrapped, this macro will make that easy to do. Please consider upstreaming your wrapper via a PR to the SpectralFitting GitHub repository.
 
 ```@docs
 @xspecmodel

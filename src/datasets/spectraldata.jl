@@ -392,7 +392,7 @@ end
 
 Unfold the dataset using the response and ancillary, as in e.g. ISIS.
 
-Returns a new [`Spectrum`](@abs) that has had the domain masking applied.
+Returns a new [`Spectrum`](@ref) that has had the domain masking applied.
 """
 function unfold(data::SpectralData)
     unfolded, variance = if has_ancillary(data)
