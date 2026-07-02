@@ -4,7 +4,7 @@ struct DomainExtension{T}
 end
 
 function DomainExtension(T::Type)
-    DomainExtension(T[], T[])
+    return DomainExtension(T[], T[])
 end
 
 """
@@ -12,20 +12,20 @@ end
 
 A thin wrapper representing multiple datasets.
 """
-struct FittableMultiDataset{D,T}
+struct FittableMultiDataset{D, T}
     d::D
     extension::Vector{DomainExtension{T}}
     function FittableMultiDataset(data::Vararg{<:AbstractDataset}; T::Type = Float64)
-        new{typeof(data),T}(data, [DomainExtension(T) for _ in data])
+        return new{typeof(data), T}(data, [DomainExtension(T) for _ in data])
     end
 end
 
 function Base.getindex(multidata::FittableMultiDataset, i)
-    multidata.d[i]
+    return multidata.d[i]
 end
 
 function Base.merge(m1::FittableMultiDataset, m2::FittableMultiDataset)
-    FittableMultiDataset(m1.d..., m2.d...)
+    return FittableMultiDataset(m1.d..., m2.d...)
 end
 
 """
@@ -39,26 +39,24 @@ struct FittableMultiModel{M}
 end
 
 function Base.getindex(multimodel::FittableMultiModel, i)
-    multimodel.m[i]
+    return multimodel.m[i]
 end
 
 function _multi_constructor_wrapper(
-    T::Union{<:Type{<:FittableMultiDataset},<:Type{<:FittableMultiModel}},
-    args,
-)
+        T::Union{<:Type{<:FittableMultiDataset}, <:Type{<:FittableMultiModel}},
+        args,
+    )
     if args isa T
-        args
-    else
-        if args isa Tuple
-            if eltype(args) <: T
-                reduce(merge, args)
-            else
-                T(args...)
-            end
+        return args
+    end
+    if args isa Tuple
+        if eltype(args) <: T
+            return reduce(merge, args)
         else
-            T(args)
+            return T(args...)
         end
     end
+    return T(args)
 end
 
 """
@@ -71,14 +69,14 @@ an array with size `n1 + n2 + ...`.
 """
 function _accumulated_indices(items)
     total::Int = 0
-    map(items) do item
+    return map(items) do item
         total = item + total
         total
     end
 end
 
 """
-    ParameterTriple(model_index, component, paramter)
+    ParameterTriple(model_index, component, parameter)
     ParameterTriple(info_tuple)
 
 Used to unambiguously denote a given parameter in a fitting problem.
@@ -87,7 +85,7 @@ struct ParameterTriple
     "Model index number."
     model_index::Int
     "If the model is a composite model, the symbol of the composite component."
-    component::Union{Nothing,Symbol}
+    component::Union{Nothing, Symbol}
     "The symbol of the parameter."
     parameter::Symbol
 end
@@ -96,9 +94,9 @@ function ParameterTriple(t::Tuple)
     N = length(t)
     @assert 2 <= N <= 3 "Tuple has bad length ($(length(t)))"
     if N == 2
-        ParameterTriple(t[1], nothing, t[2])
+        return ParameterTriple(t[1], nothing, t[2])
     else
-        ParameterTriple(t[1], t[2], t[3])
+        return ParameterTriple(t[1], t[2], t[3])
     end
 end
 
@@ -110,14 +108,14 @@ function _build_triples(model::AbstractSpectralModel, model_index::Int)
                 push!(out, ParameterTriple(model_index, m, s))
             end
         end
-        out
     else
-        [ParameterTriple(model_index, nothing, s) for s in parameter_names(model)]
+        out = [ParameterTriple(model_index, nothing, s) for s in parameter_names(model)]
     end
+    return out
 end
 
 function _build_parameter_lookup(m::FittableMultiModel)
-    lookup = Dict{ParameterTriple,Int}()
+    lookup = Dict{ParameterTriple, Int}()
     i = 1
     for (model_index, model) in enumerate(m.m)
         if is_composite(model)
@@ -134,7 +132,7 @@ function _build_parameter_lookup(m::FittableMultiModel)
             end
         end
     end
-    lookup
+    return lookup
 end
 
 """
@@ -142,16 +140,16 @@ end
 
 A struct representing a combination of models and dataset to be fit.
 """
-struct FittingProblem{M<:FittableMultiModel,D<:FittableMultiDataset}
+struct FittingProblem{M <: FittableMultiModel, D <: FittableMultiDataset}
     model::M
     data::D
     "Given a parameter triple, returns the index of the corresponding parameter."
-    lookup::Dict{ParameterTriple,Int}
-    bindings::Dict{Int,Vector{Int}}
+    lookup::Dict{ParameterTriple, Int}
+    bindings::Dict{Int, Vector{Int}}
 
     function FittingProblem(m::FittableMultiModel, d::FittableMultiDataset)
         lookup = _build_parameter_lookup(m)
-        new{typeof(m),typeof(d)}(m, d, lookup, Dict{Int,Vector{Int}}())
+        return new{typeof(m), typeof(d)}(m, d, lookup, Dict{Int, Vector{Int}}())
     end
 end
 
@@ -162,8 +160,8 @@ simplify!(prob::FittingProblem) = _simplify_bindings!(prob.bindings)
 function translate_bindings(prob::FittingProblem)
     revlookup(param_index) = only([k for (k, v) in prob.lookup if v == param_index])
 
-    IndexType = Dict{Symbol,Dict{Symbol,String}}
-    model_translation = Dict{Int,IndexType}()
+    IndexType = Dict{Symbol, Dict{Symbol, String}}
+    model_translation = Dict{Int, IndexType}()
 
     for (root, targets) in prob.bindings
         main = revlookup(root)
@@ -184,7 +182,7 @@ function translate_bindings(prob::FittingProblem)
                 target.component
             end
 
-            index = get(existing, _component, Dict{Symbol,String}())
+            index = get(existing, _component, Dict{Symbol, String}())
 
             index[target.parameter] = main_str
 
@@ -193,10 +191,10 @@ function translate_bindings(prob::FittingProblem)
         end
     end
 
-    model_translation
+    return model_translation
 end
 
-function _simplify_bindings!(bindings::Dict{Int,Vector{Int}})
+function _simplify_bindings!(bindings::Dict{Int, Vector{Int}})
     isempty(bindings) && return
 
     roots = sort!(collect(keys(bindings)))
@@ -217,15 +215,15 @@ function _simplify_bindings!(bindings::Dict{Int,Vector{Int}})
         bindings[root] = unique!(targets)
     end
 
-    bindings
+    return bindings
 end
 
-function _build_parameter_mapping(prob::FittingProblem{M}) where {M<:FittableMultiModel}
+function _build_parameter_mapping(prob::FittingProblem{M}) where {M <: FittableMultiModel}
     simplify!(prob)
     pvec, _ = _all_parameters_with_symbols(prob)
     total_params = length(pvec)
 
-    reverse_bindings = Dict{Int64,Int64}()
+    reverse_bindings = Dict{Int64, Int64}()
     for i in prob.bindings
         for j in prob.bindings[i[1]]
             reverse_bindings[j] = i[1]
@@ -241,11 +239,11 @@ function _build_parameter_mapping(prob::FittingProblem{M}) where {M<:FittableMul
 
     I = (1:length(M.parameters[1].parameters)...,)
     _start = Ref{Int}(1)
-    map(I) do model_index
+    return map(I) do model_index
         start = _start[]
         model = prob.model.m[model_index]
         N = length(parameter_vector(model))
-        b = parameter_bindings[start:(start+N-1)]
+        b = parameter_bindings[start:(start + N - 1)]
         _start[] += N
         b
     end
@@ -254,12 +252,12 @@ end
 function parameter_vector_symbols_and_bindings(prob::FittingProblem)
     pvec, syms = _all_parameters_with_symbols(prob)
     bindings = _build_parameter_mapping(prob)
-    pvec, syms, bindings
+    return pvec, syms, bindings
 end
 
 function _all_parameters_with_symbols(prob::FittingProblem)
     # TODO: I don't like that this has a different return type
-    symbol_mappings = Pair{Symbol,Symbol}[]
+    symbol_mappings = Pair{Symbol, Symbol}[]
     params = map(prob.model.m) do m
         ps, syms = _all_parameters_with_symbols(m)
         for pair in syms
@@ -267,13 +265,13 @@ function _all_parameters_with_symbols(prob::FittingProblem)
         end
         ps
     end
-    reduce(vcat, params), symbol_mappings
+    return reduce(vcat, params), symbol_mappings
 end
 
 function FittingProblem(m, d)
     _m = _multi_constructor_wrapper(FittableMultiModel, m)
     _d = _multi_constructor_wrapper(FittableMultiDataset, d)
-    FittingProblem(_m, _d)
+    return FittingProblem(_m, _d)
 end
 
 function model_count(prob::FittingProblem)
@@ -328,6 +326,7 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(prob::FittingProble
     println(buff_c, "       : $(free)")
 
     print(io, encapsulate(String(take!(buff))))
+    return
 end
 
 
@@ -369,6 +368,7 @@ function details(prob::FittingProblem; color = true)
     end
 
     print(encapsulate(String(take!(buff))))
+    return
 end
 
 _sort_binding!(binding) = sort!(binding, by = i -> i[1])
@@ -391,7 +391,7 @@ function _construct_bound_mapping(bindings, parameter_count)
 
             # mark for removal: find the parameter index in the global array
             N = if b[1] > 1
-                sum(length(parameter_mapping[q]) for q = 1:(b[1]-1))
+                sum(length(parameter_mapping[q]) for q in 1:(b[1] - 1))
             else
                 0
             end
@@ -399,14 +399,14 @@ function _construct_bound_mapping(bindings, parameter_count)
             push!(remove, index)
 
             # need to now shuffle all the indices greater than this one down by 1
-            for k = (b[2]+1):length(parameter_mapping[b[1]])
-                if (parameter_mapping[b[1]][k] > parameter_number)
+            for k in (b[2] + 1):length(parameter_mapping[b[1]])
+                if parameter_mapping[b[1]][k] > parameter_number
                     parameter_mapping[b[1]][k] -= 1
                 end
             end
             # and for subsequent models
-            for j = (b[1]+1):length(parameter_count)
-                for k = 1:length(parameter_mapping[j])
+            for j in (b[1] + 1):length(parameter_count)
+                for k in 1:length(parameter_mapping[j])
                     if parameter_mapping[j][k] > parameter_number
                         parameter_mapping[j][k] -= 1
                     end
@@ -417,7 +417,7 @@ function _construct_bound_mapping(bindings, parameter_count)
 
     sort!(unique!(remove))
 
-    parameter_mapping, remove
+    return parameter_mapping, remove
 end
 
 function _get_index_of_symbol(model::AbstractSpectralModel, symbol)::Int
@@ -426,20 +426,21 @@ function _get_index_of_symbol(model::AbstractSpectralModel, symbol)::Int
     if isnothing(i)
         error("Could not match symbol $symbol !")
     end
-    i
+    return i
 end
 
 """
 
 Bind the symbols of `last(pair)` in all models indexes by `first(pair)`.
 """
-function _bind_pairs!(prob::FittingProblem, pairs::Vararg{<:Pair{Int,Symbol}})
+function _bind_pairs!(prob::FittingProblem, pairs::Vararg{<:Pair{Int, Symbol}})
     binding = map(pairs) do pair
         model = prob.model.m[pair[1]]
         pair[1] => _get_index_of_symbol(model, pair[2])
     end |> collect
     _sort_binding!(binding)
     push!(prob.bindings, binding)
+    return
 end
 
 
@@ -463,11 +464,11 @@ The `model_index` is the index of the model in a multi-fit problem, i.e. `1`,
 The component name is a [`CompositeModel`](@ref) model name, e.g. `:a1`, or
 `:c3`. This can be omitted if the model is not a [`CompositeModel`](@ref).
 
-The paramter symbol is a symbol representing the field of the parameter in the
+The parameter symbol is a symbol representing the field of the parameter in the
 model. That is, `:K` or `:log10Flux`.
 
 Bindings are specified using a chain of pairs `(root) => (target) [=>
-(target)]`. The root parameter is kept as is, and all subsequent paramters are
+(target)]`. The root parameter is kept as is, and all subsequent parameters are
 bound to the root. Multiple chains of pairs may be specified in a single call
 to `bind!`, or, alternatively, multiple bindings may be specified with
 successive calls to `bind!`.
@@ -515,18 +516,19 @@ function bind!(prob::FittingProblem, pairs::Vararg{<:Pair})
         triples = _to_triple_vector(pair)
         bind!(prob, triples[1], triples[2:end])
     end
-    prob
+    return prob
 end
 
 function bind!(
-    prob::FittingProblem,
-    root::ParameterTriple,
-    other::AbstractVector{<:ParameterTriple},
-)
+        prob::FittingProblem,
+        root::ParameterTriple,
+        other::AbstractVector{<:ParameterTriple},
+    )
     primary = parameter_index(prob, root)
     secondaries = map(i -> parameter_index(prob, i), other)
     existing = get(prob.bindings, primary, Int[])
     prob.bindings[primary] = unique!(vcat(existing, secondaries))
+    return
 end
 
 """
@@ -549,9 +551,9 @@ bindall!(prob, :E, (:a2, :K))
 ```
 """
 function bindall!(
-    prob::FittingProblem,
-    items::Vararg{<:Union{<:Symbol,<:Tuple{Symbol,Symbol}}},
-)
+        prob::FittingProblem,
+        items::Vararg{<:Union{<:Symbol, <:Tuple{Symbol, Symbol}}},
+    )
     for item in items
         _item = if item isa Tuple
             item
@@ -561,10 +563,10 @@ function bindall!(
         bind!(
             prob,
             ParameterTriple((1, _item...)),
-            [ParameterTriple((i, _item...)) for i = 2:model_count(prob)],
+            [ParameterTriple((i, _item...)) for i in 2:model_count(prob)],
         )
     end
-    prob
+    return prob
 end
 
 function _to_triple_vector(pair::Pair)
@@ -575,7 +577,7 @@ function _to_triple_vector(pair::Pair)
         rem = last(rem)
     end
     push!(out, ParameterTriple(rem))
-    out
+    return out
 end
 
 parameter_index(prob::FittingProblem, t::ParameterTriple) = prob.lookup[t]

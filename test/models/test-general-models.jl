@@ -6,8 +6,6 @@ using SpectralFitting
 # test set
 
 
-
-
 @ciskip begin
     model = PhotoelectricAbsorption() * (PowerLaw() + BlackBody())
 

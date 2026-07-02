@@ -2,7 +2,6 @@ using Test
 using SpectralFitting
 
 
-
 # multiplicative
 
 model = DummyMultiplicativeTableModel()

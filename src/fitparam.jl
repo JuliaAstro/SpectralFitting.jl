@@ -1,6 +1,6 @@
 function fit_param_default_error(val)
     # 10 % error
-    round(abs(0.1 * val), sigdigits = 1)
+    return round(abs(0.1 * val), sigdigits = 1)
 end
 
 """
@@ -60,7 +60,7 @@ The following methods should be preferred over direct field access for a
 - [`isfrozen`](@ref)
 - [`isfree`](@ref)
 """
-mutable struct FitParam{T<:Number}
+mutable struct FitParam{T <: Number}
     "The value (i.e. mean) of the parameter."
     value::T
     "The absolute (±, or standard deviation) error on the parameter."
@@ -95,7 +95,7 @@ function set!(f::FitParam, o::FitParam)
     f.lower_limit = o.lower_limit
     f.upper_limit = o.upper_limit
     f.error = o.error
-    f
+    return f
 end
 # edge case
 get_value(x::Number) = x
@@ -118,35 +118,35 @@ Base.copy(f::FitParam) = FitParam(
 )
 
 paramtype(::Type{FitParam{T}}) where {T} = T
-paramtype(::T) where {T<:FitParam} = paramtype(T)
+paramtype(::T) where {T <: FitParam} = paramtype(T)
 
 function get_info_tuple(f::FitParam)
     s1 = Printf.@sprintf "%.3g" get_value(f)
     s2 = Printf.@sprintf "%.3g" get_error(f)
     s3 = Printf.@sprintf "%.3g" get_lowerlimit(f)
     s4 = Printf.@sprintf "%.3g" get_upperlimit(f)
-    (s1, s2, s3, s4)
+    return (s1, s2, s3, s4)
 end
 
 function Base.show(io::IO, @nospecialize(f::FitParam))
     s = Printf.@sprintf "(%.3g ± %.3g)" get_value(f) get_error(f)
-    print(io, s)
+    return print(io, s)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", @nospecialize(f::FitParam))
-    _print_param(io, f)
+    return _print_param(io, f)
 end
 
 function _print_param(
-    io::IO,
-    @nospecialize(val::FitParam);
-    name::Union{<:AbstractString,Nothing} = nothing,
-    name_padding::Int = 0,
-    pm_padding::Int = 0,
-    err_padding::Int = 0,
-    range_padding::Int = 0,
-    show_state::Bool = true,
-)
+        io::IO,
+        @nospecialize(val::FitParam);
+        name::Union{<:AbstractString, Nothing} = nothing,
+        name_padding::Int = 0,
+        pm_padding::Int = 0,
+        err_padding::Int = 0,
+        range_padding::Int = 0,
+        show_state::Bool = true,
+    )
     total_padding = err_padding + range_padding
     if total_padding > 0
         # for all the missing characters in the formatting
@@ -179,7 +179,8 @@ function _print_param(
         print(io, val)
     end
     println(io)
+    return
 end
 
 export FitParam,
-    FitParam, set_value!, set_error!, get_value, get_error, get_upperlimit, get_lowerlimit
+    set_value!, set_error!, get_value, get_error, get_upperlimit, get_lowerlimit

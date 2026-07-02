@@ -20,6 +20,7 @@ function register_xspec_data()
     register_model_data(XS_Kerrconv, "kerrtable.fits"; root = LIBXSPEC_STORAGE_PATH)
     register_model_data(XS_KyrLine, "KBHline01.fits"; root = LIBXSPEC_STORAGE_PATH)
     register_model_data(XS_Laor, "ari.mod"; root = LIBXSPEC_STORAGE_PATH)
+    return
 end
 
 
@@ -32,6 +33,7 @@ function __init__()
         # set an environment variable so we don't accidentally init again
         ENV["SPECTRAL_FITTING_XSPEC_INIT"] = "true"
     end
+    return
 end
 
 end # module XSPECModels

@@ -1,23 +1,19 @@
 function prettyfloat(f)
     if f == 0
-        "0.0"
+        return "0.0"
     elseif f == Inf
-        "Inf"
-    elseif ((f ≥ 1) && (f < 1e5) && (f - trunc(Int, f) < 1e-5))
-        Printf.@sprintf("%.1f", f)
+        return "Inf"
+    elseif f ≥ 1 && f < 1.0e5 && f - trunc(Int, f) < 1.0e-5
+        return Printf.@sprintf("%.1f", f)
     else
-        Printf.@sprintf("%#.5g", f)
+        return Printf.@sprintf("%#.5g", f)
     end
 end
 
 function encapsulate(text)
     # drop everything after last new line
     n = findlast(==('\n'), text)
-    s = if strip(text[n:end]) == ""
-        text[1:n]
-    else
-        text
-    end
+    s = strip(text[n:end]) == "" ? text[1:n] : text
     lines = split(s, "\n")
     out = map(enumerate(lines)) do (i, line)
         if i == 1
@@ -28,10 +24,10 @@ function encapsulate(text)
             "│ " * line
         end
     end
-    join(out, "\n")
+    return join(out, "\n")
 end
 
 function indent(text, n)
     spacer = " "^n
-    replace(text, '\n' => "\n" * spacer)
+    return replace(text, '\n' => "\n" * spacer)
 end

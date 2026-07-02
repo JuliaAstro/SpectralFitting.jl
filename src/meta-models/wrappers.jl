@@ -4,17 +4,16 @@
 Used to implement wrapper models that take existing models as their argument and
 modify their behaviour.
 """
-abstract type AbstractModelWrapper{M<:AbstractSpectralModel,T,K} <:
-              AbstractSpectralModel{T,K} end
+abstract type AbstractModelWrapper{M <: AbstractSpectralModel, T, K} <: AbstractSpectralModel{T, K} end
 
 function remake_with_parameters(m::AbstractModelWrapper, parameters::Tuple)
-    Base.typename(typeof(m)).wrapper(remake_with_parameters(backing_model(m), parameters))
+    return Base.typename(typeof(m)).wrapper(remake_with_parameters(backing_model(m), parameters))
 end
 
 is_composite(::Type{<:AbstractModelWrapper{M}}) where {M} = is_composite(M)
 
 function _inner_invokemodel!(output, domain, model::AbstractModelWrapper)
-    _inner_invokemodel!(output, domain, backing_model(model))
+    return _inner_invokemodel!(output, domain, backing_model(model))
 end
 
 # tie in dispatches
@@ -51,19 +50,19 @@ _printinfo(io::IO, m::AbstractModelWrapper{<:CompositeModel}; kwargs...) =
 remake_with_model(m::AbstractModelWrapper, model::AbstractSpectralModel) =
     Base.typename(typeof(m)).wrapper(model)
 
-normalisation(model::AbstractModelWrapper{M,T,Additive}) where {M,T} =
+normalisation(model::AbstractModelWrapper{M, T, Additive}) where {M, T} =
     normalisation(backing_model(model))
 
 function Base.propertynames(m::AbstractModelWrapper)
-    Base.propertynames(backing_model(m))
+    return Base.propertynames(backing_model(m))
 end
 
-function Base.getproperty(m::AbstractModelWrapper{<:Any,<:FitParam}, symb::Symbol)
+function Base.getproperty(m::AbstractModelWrapper{<:Any, <:FitParam}, symb::Symbol)
     params = Base.propertynames(backing_model(m))
     if symb in params
-        getproperty(backing_model(m), symb)
+        return getproperty(backing_model(m), symb)
     else
-        getfield(m, symb)
+        return getfield(m, symb)
     end
 end
 

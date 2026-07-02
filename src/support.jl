@@ -32,7 +32,7 @@ Return the units of a particular layout. If this method returns `nothing`,
 assume the layout does not care about the units and handle that information
 appropriately (throw an error or set defaults).
 """
-support_units(::T) where {T<:AbstractDataLayout} = nothing
+support_units(::AbstractDataLayout) = nothing
 
 """
     with_units(::AbstractDataLayout, units)
@@ -71,9 +71,9 @@ bins, with the objective being the value in that bin. This means
 ```julia
 length(objective) + 1== length(domain)
 ```
-Note that the _contiguous_ qualifer is to mean there is no gaps in the bins, and that
+Note that the _contiguous_ qualifier is to mean there is no gaps in the bins, and that
 ```math
-\\Delta E_i = E_{i+1} - E_{i}
+ΔE_i = E_{i+1} - E_{i}
 ```
 
 """
@@ -102,7 +102,7 @@ function preferred_support(x)
             return layout
         end
     end
-    error("No prefered support for $(typeof(x))")
+    error("No preferred support for $(typeof(x))")
 end
 
 """
@@ -138,9 +138,7 @@ function _support_reducer(x::ContiguouslyBinned, y)
         _support_reducer(OneToOne(), y)
     end
 end
-function _support_reducer(x, y)
-    common_support(x, y)
-end
+_support_reducer(x, y) = common_support(x, y)
 
 common_support(args::Vararg) = reduce(_support_reducer, args)
 

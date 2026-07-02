@@ -1,14 +1,14 @@
 using SpectralFitting, Test
 
-struct DummySimpleLinear{T} <: AbstractSpectralModel{T,Additive}
+struct DummySimpleLinear{T} <: AbstractSpectralModel{T, Additive}
     K::T
     c::T
 end
 function DummySimpleLinear(; K = FitParam(1.0), c = FitParam(1.0))
-    DummySimpleLinear(K, c)
+    return DummySimpleLinear(K, c)
 end
 function SpectralFitting.invoke!(out, x, model::DummySimpleLinear)
-    @. out = x + (model.c / model.K)
+    return @. out = x + (model.c / model.K)
 end
 SpectralFitting.supports(::Type{<:DummySimpleLinear}) = (OneToOne(),)
 
@@ -24,7 +24,7 @@ model = DummySimpleLinear()
 
 @test SpectralFitting.common_support(model, data) isa SpectralFitting.OneToOne
 
-# no erors
+# no errors
 invokemodel(x, model)
 
 prob = FittingProblem(model => data)
@@ -53,10 +53,10 @@ y[2:5] .= 2.0
 data = InjectiveData(x, y, codomain_variance = y_err)
 # mask out the bogus data points
 data.data_mask[2:5] .= false
-model = PowerLaw(K = FitParam(1.0E-5), a = FitParam(2.0))
+model = PowerLaw(K = FitParam(1.0e-5), a = FitParam(2.0))
 prob = FittingProblem(model => data)
 @test SpectralFitting.common_support(model, data) isa SpectralFitting.ContiguouslyBinned
 result = fit(prob, LevenbergMarquadt())
 @test result.u[1] ≈ 2.55 atol = 0.01
 @test result.u[2] ≈ 3.0 atol = 0.05
-# note best fit photon index, u[2] should be 3 not 2 becuase y contains bin integrated values not the density
+# note best fit photon index, u[2] should be 3 not 2 because y contains bin integrated values not the density

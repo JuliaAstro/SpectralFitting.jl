@@ -17,19 +17,19 @@ wrapped model before convolution. The domain is such that `x = 1` corresponds to
 no domain shift in the convolution (e.g., if the domain is energy, this would be
 the rest energy of a line).
 """
-struct AsConvolution{M,T,V,P} <: AbstractModelWrapper{M,T,Convolutional}
+struct AsConvolution{M, T, V, P} <: AbstractModelWrapper{M, T, Convolutional}
     model::M
     # the domain on which we evaluate this model
     domain::V
     # an additional output cache
-    cache::NTuple{2,Vector{P}}
+    cache::NTuple{2, Vector{P}}
     function AsConvolution(
-        model::AbstractSpectralModel{T},
-        domain::V,
-        cache::NTuple{2,Vector{P}},
-    ) where {T,V,P}
+            model::AbstractSpectralModel{T},
+            domain::V,
+            cache::NTuple{2, Vector{P}},
+        ) where {T, V, P}
         @assert !is_composite(model)
-        new{typeof(model),T,V,P}(model, domain, cache)
+        return new{typeof(model), T, V, P}(model, domain, cache)
     end
 end
 
@@ -39,7 +39,7 @@ is_composite(::Type{<:AsConvolution}) = false
     Base.copy(m::AsConvolution)
 
 Creates a copy of an [`AsConvolution`](@ref) wrapped model. Will make a
-`deepcopy` of the cache to elimiate possible thread contention, but does not
+`deepcopy` of the cache to eliminate possible thread contention, but does not
 copy the domain.
 """
 Base.copy(m::AsConvolution) =
@@ -47,51 +47,51 @@ Base.copy(m::AsConvolution) =
 
 # ignore K
 function parameter_names(
-    ::Type{<:AsConvolution{M}},
-) where {M<:AbstractSpectralModel{T,Additive}} where {T}
-    parameter_names(M)[2:end]
+        ::Type{<:AsConvolution{M}},
+    ) where {M <: AbstractSpectralModel{T, Additive}} where {T}
+    return parameter_names(M)[2:end]
 end
-function parameter_count(m::AsConvolution{<:AbstractSpectralModel{T,Additive}}) where {T}
-    parameter_count(backing_model(m)) - 1
+function parameter_count(m::AsConvolution{<:AbstractSpectralModel{T, Additive}}) where {T}
+    return parameter_count(backing_model(m)) - 1
 end
 function parameter_vector(
-    model::AsConvolution{<:AbstractSpectralModel{T,Additive}},
-) where {T}
-    parameter_vector(backing_model(model))[2:end]
+        model::AsConvolution{<:AbstractSpectralModel{T, Additive}},
+    ) where {T}
+    return parameter_vector(backing_model(model))[2:end]
 end
 
 # tie in dispatches
 function _all_parameters_with_symbols(
-    model::AsConvolution{<:AbstractSpectralModel{T,Additive}},
-) where {T}
+        model::AsConvolution{<:AbstractSpectralModel{T, Additive}},
+    ) where {T}
     ps, syms = _all_parameters_with_symbols(backing_model(model))
-    ps[2:end], syms[2:end]
+    return ps[2:end], syms[2:end]
 end
 
 function remake_with_parameters(
-    model::AsConvolution{<:AbstractSpectralModel{T,K}},
-    params::Tuple,
-) where {T,K}
+        model::AsConvolution{<:AbstractSpectralModel{T, K}},
+        params::Tuple,
+    ) where {T, K}
     _params = if K <: Additive
         # Need an additional parameter for the normalisation term
         (one(eltype(params)), params...)
     else
         params
     end
-    AsConvolution(remake_with_parameters(model.model, _params), model.domain, model.cache)
+    return AsConvolution(remake_with_parameters(model.model, _params), model.domain, model.cache)
 end
 
 _model_name(model::AsConvolution) = "AsConvolution[$(_model_name(model.model))]"
 
 function AsConvolution(
-    model::AbstractSpectralModel{T};
-    domain = collect(range(0, 2, 100)),
-) where {T}
+        model::AbstractSpectralModel{T};
+        domain = collect(range(0, 2, 100)),
+    ) where {T}
     output = collect(invokemodel(domain, model))
-    AsConvolution(model, domain, (output, deepcopy(output)))
+    return AsConvolution(model, domain, (output, deepcopy(output)))
 end
 
-function _inner_invokemodel!(output, domain, model::AsConvolution{M,T}) where {M,T}
+function _inner_invokemodel!(output, domain, model::AsConvolution{M, T}) where {M, T}
     D = promote_type(eltype(domain), T)
     model_output, _ =
         _reinterpret_dual(typeof(model), D, model.cache[1], length(model.domain) - 1)
@@ -106,6 +106,7 @@ function _inner_invokemodel!(output, domain, model::AsConvolution{M,T}) where {M
 
     # overwrite the output
     @. output = convolution_cache
+    return output
 end
 
 export AsConvolution

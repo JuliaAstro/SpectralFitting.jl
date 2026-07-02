@@ -18,7 +18,7 @@ struct RMFHeader
     num_channels::Int
 end
 
-struct RMFMatrix{V,T,M}
+struct RMFMatrix{V, T, M}
     f_chan::V
     n_chan::V
     bins_low::Vector{T}
@@ -33,26 +33,22 @@ struct RMFChannels{T}
     bins_high::Vector{T}
 end
 
-function _parse_any(::Type{T}, @nospecialize(value::V))::T where {T,V}
-    if V <: AbstractString
-        parse(T, value)
-    else
-        convert(T, value)
-    end
+function _parse_any(::Type{T}, @nospecialize(value::V))::T where {T, V}
+    return V <: AbstractString ? parse(T, value) : convert(T, value)
 end
 
 function _string_boolean(@nospecialize(value::V))::Bool where {V}
     if V <: AbstractString
         if value == "F"
-            false
+            return false
         elseif value == "T"
-            true
+            return true
         else
             @warn("Unknown boolean string: $(value)")
-            false
+            return false
         end
     else
-        value
+        return value
     end
 end
 
@@ -73,21 +69,21 @@ function parse_rmf_header(table::FITSFiles.HDU)
     num_channels = if haskey(table.cards, "DETCHANS")
         _parse_any(Int, get(table.cards, "DETCHANS"))
     else
-        @warn "DETCHANS is not set in RMF header. Infering channel count from table length."
+        @warn "DETCHANS is not set in RMF header. Inferring channel count from table length."
         -1
     end
-    RMFHeader(first_channel, num_channels)
+    return RMFHeader(first_channel, num_channels)
 end
 
 function read_rmf_channels(table::FITSFiles.HDU, T::Type)
     channels = _parse_any.(Int, table.data.CHANNEL)
     energy_low = _parse_any.(T, table.data.E_MIN)
     energy_high = _parse_any.(T, table.data.E_MAX)
-    RMFChannels(channels, energy_low, energy_high)
+    return RMFChannels(channels, energy_low, energy_high)
 end
 
 function _chan_to_vectors(chan::AbstractMatrix)
-    map(eachcol(chan)) do column
+    return map(eachcol(chan)) do column
         i = findfirst(==(0), column)
         # if no zeroes, return full column
         if isnothing(i)
@@ -103,24 +99,24 @@ end
 function _translate_channel_array(channel)
     if channel isa AbstractMatrix
         # transpose the matrix, since FITSFiles reads things in Julia-style
-        _chan_to_vectors(transpose(channel))
+        return _chan_to_vectors(transpose(channel))
     elseif eltype(channel) <: AbstractVector
         # reorder for the same reason as above transpose
-        channel
+        return channel
     else
-        map(i -> [i], channel)
+        return map(i -> [i], channel)
     end
 end
 
 function _adapt_matrix_type(T::Type, mat::M) where {M}
     if eltype(M) <: AbstractVector
-        map(row -> convert.(T, row), mat)
+        return map(row -> convert.(T, row), mat)
     elseif M <: AbstractMatrix
-        map(row -> convert.(T, row), eachcol(mat))
+        return map(row -> convert.(T, row), eachcol(mat))
     else
         # handle simple vector format where each energy bin maps to a single
         # value (e.g., for responses produced using ftflx2xsp)
-        map(val -> [convert(T, val)], mat)
+        return map(val -> [convert(T, val)], mat)
     end
 end
 
@@ -135,7 +131,7 @@ function read_rmf_matrix(table::FITSFiles.HDU, header::RMFHeader, T::Type)
     f_chan::Vector{Vector{Int}} = _translate_channel_array(f_chan_raw)
     n_chan::Vector{Vector{Int}} = _translate_channel_array(n_chan_raw)
 
-    RMFMatrix(
+    return RMFMatrix(
         f_chan,
         n_chan,
         energy_low,
@@ -148,7 +144,7 @@ end
 # TODO: remove me
 function _read_fits_and_close(f, path)
     fits_file = FITSFiles.fits(path)
-    f(fits_file)
+    return f(fits_file)
 end
 
 function read_rmf(path::String; T::Type = Float64)
@@ -164,7 +160,7 @@ function read_rmf(path::String; T::Type = Float64)
         (hdr, _rmf, _channels)
     end
 
-    _build_reponse_matrix(header, rmf, channels, T)
+    return _build_response_matrix(header, rmf, channels, T)
 end
 
 function read_ancillary_response(path::String; T::Type = Float64)
@@ -175,15 +171,15 @@ function read_ancillary_response(path::String; T::Type = Float64)
         hi::Vector{T} = convert.(T, hdu.data.ENERG_HI)
         (lo, hi, area)
     end
-    SpectralFitting.AncillaryResponse{T}(bins_low, bins_high, effective_area)
+    return SpectralFitting.AncillaryResponse{T}(bins_low, bins_high, effective_area)
 end
 
-function _build_reponse_matrix(
-    header::RMFHeader,
-    rmf::RMFMatrix,
-    channels::RMFChannels,
-    T::Type,
-)
+function _build_response_matrix(
+        header::RMFHeader,
+        rmf::RMFMatrix,
+        channels::RMFChannels,
+        T::Type,
+    )
     R = build_response_matrix(
         rmf.f_chan,
         rmf.n_chan,
@@ -192,7 +188,7 @@ function _build_reponse_matrix(
         header.first_channel,
         T,
     )
-    SpectralFitting.ResponseMatrix(
+    return SpectralFitting.ResponseMatrix(
         R,
         channels.channels,
         channels.bins_low,
@@ -203,13 +199,13 @@ function _build_reponse_matrix(
 end
 
 function build_response_matrix(
-    f_chan::Vector,
-    n_chan::Vector,
-    matrix_rows::Vector,
-    num_cols::Int,
-    first_channel,
-    T::Type,
-)
+        f_chan::Vector,
+        n_chan::Vector,
+        matrix_rows::Vector,
+        num_cols::Int,
+        first_channel,
+        T::Type,
+    )
     ptrs = Int[1]
     indices = Int[]
     matrix = Float64[]
@@ -227,10 +223,10 @@ function build_response_matrix(
             end
             first = (f - first_channel) + 1
             # append all of the indices
-            for j = 0:(n-1)
+            for j in 0:(n - 1)
                 push!(indices, j + first)
             end
-            append!(matrix, M[(row_len+1):(row_len+n)])
+            append!(matrix, M[(row_len + 1):(row_len + n)])
             row_len += n
         end
 
@@ -239,17 +235,17 @@ function build_response_matrix(
         prev = next
     end
 
-    SparseArrays.SparseMatrixCSC{T,Int}(num_cols, length(f_chan), ptrs, indices, matrix)
+    return SparseArrays.SparseMatrixCSC{T, Int}(num_cols, length(f_chan), ptrs, indices, matrix)
 end
 
 # TODO: marked for refactoring (unused)
 function build_response_matrix!(
-    R,
-    f_chan::Vector,
-    n_chan::Vector,
-    matrix_rows::Vector,
-    first_channel,
-)
+        R,
+        f_chan::Vector,
+        n_chan::Vector,
+        matrix_rows::Vector,
+        first_channel,
+    )
     for (i, (F, N)) in enumerate(zip(f_chan, n_chan))
         M = matrix_rows[i]
         index = 1
@@ -258,10 +254,11 @@ function build_response_matrix!(
                 break
             end
             first -= first_channel
-            @views R[(first+1):(first+len), i] .= M[index:(index+len-1)]
+            @views R[(first + 1):(first + len), i] .= M[index:(index + len - 1)]
             index += len
         end
     end
+    return
 end
 
 function _get_exposure_time(header)
@@ -272,15 +269,15 @@ function _get_exposure_time(header)
         return get(header, "TELAPSE")
     end
     # maybe time stops given
-    if (haskey(header, "TSTART")) && (haskey(header, "TSTOP"))
+    if haskey(header, "TSTART") && haskey(header, "TSTOP")
         return get(header, "TSTOP") - get(header, "TSTART")
     end
     @warn "Cannot find or infer exposure time."
-    0.0
+    return 0.0
 end
 
 function _get_stable(::Type{T}, header, name, default)::T where {T}
-    get(header, name, T(default))
+    return get(header, name, T(default))
 end
 
 function read_spectrum(path; T::Type = Float64)
@@ -325,7 +322,7 @@ function read_spectrum(path; T::Type = Float64)
             SpectralFitting.ErrorStatistics.Numeric, convert.(T, fits[2].data.STAT_ERR)
         elseif is_poisson
             SpectralFitting.ErrorStatistics.Poisson,
-            @. T(SpectralFitting.count_error(values, 1.0))
+                @. T(SpectralFitting.count_error(values, 1.0))
         else
             @warn "Unknown error statistics. Setting zero for all."
             SpectralFitting.ErrorStatistics.Unknown, T[0 for _ in values]
@@ -347,12 +344,10 @@ function read_spectrum(path; T::Type = Float64)
             instrument,
         )
     end
-    info
+    return info
 end
 
-function read_background(path::String)
-    read_spectrum(path)
-end
+read_background(path::String) = read_spectrum(path)
 
 function read_paths_from_spectrum(path::String)
     header = _read_fits_and_close(path) do fits
@@ -366,7 +361,7 @@ function read_paths_from_spectrum(path::String)
     response_path = read_filename(header, "RESPFILE", path, ".rmf", ".rsp")
     ancillary_path = read_filename(header, "ANCRFILE", path, possible_ext)
     background_path = read_filename(header, "BACKFILE", path, possible_ext)
-    (background_path, response_path, ancillary_path)
+    return (background_path, response_path, ancillary_path)
 end
 
 function read_filename(header, entry, parent, exts...)
@@ -382,7 +377,7 @@ function read_filename(header, entry, parent, exts...)
             return name
         end
     end
-    nothing
+    return nothing
 end
 
 function find_file(dir, name, parent, extensions)
@@ -401,7 +396,7 @@ function find_file(dir, name, parent, extensions)
     elseif match(r"^none\b", name) !== nothing
         return nothing
     end
-    joinpath(dir, name)
+    return joinpath(dir, name)
 end
 
 end # module
@@ -410,7 +405,7 @@ using .OGIP
 export OGIP
 
 function read_fits_header(path; hdu = 2)
-    OGIP._read_fits_and_close(path) do f
+    return OGIP._read_fits_and_close(path) do f
         # TODO: FITSFiles will here parse the whole file just so we can get at
         # the header, which seems a bit redundant...
         f[hdu].cards

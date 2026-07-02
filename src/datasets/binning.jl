@@ -2,7 +2,7 @@ export construct_objective_cache, regroup!, interpolated_rebin!, interpolated_re
 
 function interpolated_rebin(target_bins, input, current_bins)
     output = zeros(eltype(input), length(target_bins_high) - 1)
-    interpolated_rebin!(output, target_bins, input, current_bins)
+    return interpolated_rebin!(output, target_bins, input, current_bins)
 end
 
 function interpolated_rebin!(output, target, input, current)
@@ -14,54 +14,50 @@ function interpolated_rebin!(output, target, input, current)
 
     # convert from counts to density
     for i in eachindex(input)
-        input[i] /= current[i+1] - current[i]
+        input[i] /= current[i + 1] - current[i]
     end
 
     # use DataInterpolations cus no allocation :D
-    interp = @views DataInterpolations.LinearInterpolation(input, current[1:(end-1)])
+    interp = @views DataInterpolations.LinearInterpolation(input, current[1:(end - 1)])
 
     function _interp_safe(x)
-        if x < current[1] || x > current[end-1]
-            zero(x)
-        else
-            interp(x)
-        end
+        return x < current[1] || x > current[end - 1] ? zero(x) : interp(x)
     end
 
     for i in eachindex(output)
-        bin_high, bin_low = target[i+1], target[i]
+        bin_high, bin_low = target[i + 1], target[i]
         Δ = bin_high - bin_low
         output[i] = Δ * _interp_safe(bin_low)
     end
 
     # restore like a good mannered citizen
     for i in eachindex(input)
-        input[i] *= current[i+1] - current[i]
+        input[i] *= current[i + 1] - current[i]
     end
-    output
+    return output
 end
 
 function construct_objective_cache(
-    T::Type,
-    model::AbstractSpectralModel,
-    domain::AbstractVector,
-)
-    construct_objective_cache(preferred_support(model), T, model, domain)
+        T::Type,
+        model::AbstractSpectralModel,
+        domain::AbstractVector,
+    )
+    return construct_objective_cache(preferred_support(model), T, model, domain)
 end
 function construct_objective_cache(
-    layout::AbstractDataLayout,
-    model::AbstractSpectralModel,
-    domain::AbstractVector{T},
-) where {T}
-    construct_objective_cache(layout, T, model, domain)
+        layout::AbstractDataLayout,
+        model::AbstractSpectralModel,
+        domain::AbstractVector{T},
+    ) where {T}
+    return construct_objective_cache(layout, T, model, domain)
 end
 function construct_objective_cache(
-    layout::AbstractDataLayout,
-    T::Type,
-    model::AbstractSpectralModel,
-    domain,
-)
-    construct_objective_cache(layout, T, length(domain), objective_cache_count(model))
+        layout::AbstractDataLayout,
+        T::Type,
+        model::AbstractSpectralModel,
+        domain,
+    )
+    return construct_objective_cache(layout, T, length(domain), objective_cache_count(model))
 end
 function construct_objective_cache(layout::AbstractDataLayout, T::Type, N::Int, size::Int)
     n = if layout isa OneToOne
@@ -71,7 +67,7 @@ function construct_objective_cache(layout::AbstractDataLayout, T::Type, N::Int, 
     else
         error("No domain construction for $(layout) defined.")
     end
-    zeros(T, (n, size))
+    return zeros(T, (n, size))
 end
 
 function augmented_energy_channels(channels, other_channels, bins_low, bins_high)
@@ -88,11 +84,11 @@ function augmented_energy_channels(channels, other_channels, bins_low, bins_high
         if index > lastindex(bins_low)
             break
         end
-        if (i > 1) && !(energies[i] ≈ bins_low[index])
-            @warn "Channel $index: misaligned $(energies[i-1]) != $(bins_low[index])! Data may not be contiguous."
+        if i > 1 && !(energies[i] ≈ bins_low[index])
+            @warn "Channel $index: misaligned $(energies[i - 1]) != $(bins_low[index])! Data may not be contiguous."
         end
         energies[i] = bins_low[index]
-        energies[i+1] = bins_high[index]
+        energies[i + 1] = bins_high[index]
     end
-    energies
+    return energies
 end

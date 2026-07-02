@@ -1,6 +1,6 @@
 # TODO: could be Response or Redistribution : how do we track this?
 mutable struct ResponseMatrix{T}
-    matrix::SparseMatrixCSC{T,Int}
+    matrix::SparseMatrixCSC{T, Int}
     channels::Vector{Int}
     channel_bins_low::Vector{T}
     channel_bins_high::Vector{T}
@@ -16,9 +16,9 @@ response matrix. This is equivalent to the model domain.
 """
 function response_energy(resp::ResponseMatrix{T}) where {T}
     E = zeros(T, length(resp.bins_low) + 1)
-    E[1:(end-1)] .= resp.bins_low
+    E[1:(end - 1)] .= resp.bins_low
     E[end] = resp.bins_high[end]
-    E
+    return E
 end
 
 """
@@ -29,9 +29,9 @@ of the response matrix. That is, the channel energies as used by the spectrum.
 """
 function folded_energy(resp::ResponseMatrix{T}) where {T}
     E = zeros(T, length(resp.channel_bins_low) + 1)
-    E[1:(end-1)] .= resp.channel_bins_low
+    E[1:(end - 1)] .= resp.channel_bins_low
     E[end] = resp.channel_bins_high[end]
-    E
+    return E
 end
 
 
@@ -48,7 +48,7 @@ function regroup!(resp::ResponseMatrix{T}, grouping) where {T}
         resp.channel_bins_high[grp[1]] = resp.channel_bins_high[grp[3]]
     end
     resp.matrix = sparse(new_matrix)
-    resize!(resp, length(itt))
+    return resize!(resp, length(itt))
 end
 
 function Base.resize!(response::ResponseMatrix, n)
@@ -57,13 +57,13 @@ function Base.resize!(response::ResponseMatrix, n)
     end
     resize!(response.channels, n)
     resize!(response.channel_bins_low, n)
-    resize!(response.channel_bins_high, n)
+    return resize!(response.channel_bins_high, n)
 end
 
 # todo: currently unused; do we need this?
 function normalise_rows!(matrix)
     # returns weights
-    @views map(1:size(matrix, 2)) do
+    return @views map(1:size(matrix, 2)) do
         w = sum(matrix[i, :])
         if ΣR > 0.0
             matrix[i, :] .= matrix[i, :] / w
@@ -73,19 +73,20 @@ function normalise_rows!(matrix)
 end
 
 function Base.show(
-    io::IO,
-    ::MIME{Symbol("text/plain")},
-    @nospecialize(rm::ResponseMatrix{T})
-) where {T}
+        io::IO,
+        ::MIME{Symbol("text/plain")},
+        @nospecialize(rm::ResponseMatrix{T})
+    ) where {T}
     nchans = length(rm.channels)
     println(io, "ResponseMatrix with $nchans channels:")
     Base.print_array(io, rm.matrix)
+    return
 end
 
 function _printinfo(io, resp::ResponseMatrix{T}) where {T}
     emin, emax = prettyfloat(minimum(resp.bins_low)), prettyfloat(maximum(resp.bins_high))
-    c_emin, c_emax = prettyfloat(minimum(resp.channel_bins_low)),
-    prettyfloat(maximum(resp.channel_bins_high))
+    c_emin = prettyfloat(minimum(resp.channel_bins_low))
+    c_emax = prettyfloat(maximum(resp.channel_bins_high))
     ranks, files = size(resp.matrix)
 
     print(io, "Response Matrix")
@@ -96,15 +97,16 @@ function _printinfo(io, resp::ResponseMatrix{T}) where {T}
       . Domain E (min/max)  : ($emin, $emax)
     """
     print(io, descr)
+    return
 end
 
 function drop_channels!(response::ResponseMatrix, inds)
     deleteat!(response.channels, inds)
     deleteat!(response.channel_bins_high, inds)
     deleteat!(response.channel_bins_low, inds)
-    keep = collect(i for i = 1:size(response.matrix, 1) if i ∉ inds)
+    keep = collect(i for i in 1:size(response.matrix, 1) if i ∉ inds)
     response.matrix = response.matrix[keep, :]
-    length(inds)
+    return length(inds)
 end
 
 struct AncillaryResponse{T}
@@ -122,23 +124,24 @@ function _printinfo(io, resp::AncillaryResponse{T}) where {T}
       . E (min/max)         : ($emin, $emax)
     """
     print(io, descr)
+    return
 end
 
 function fold_ancillary(response::ResponseMatrix, ancillary::AncillaryResponse)
-    ancillary.effective_area' .* response.matrix
+    return ancillary.effective_area' .* response.matrix
 end
 
 function Base.show(
-    io::IO,
-    ::MIME{Symbol("text/plain")},
-    @nospecialize(resp::AncillaryResponse{T})
-) where {T}
+        io::IO, ::MIME{Symbol("text/plain")},
+        @nospecialize(resp::AncillaryResponse{T})
+    ) where {T}
     _printinfo(io, resp)
+    return
 end
 
 function unfold(resp::ResponseMatrix, ancillary::AncillaryResponse, data)
     mat = fold_ancillary(resp, ancillary)
-    _unfold(resp, mat, data)
+    return _unfold(resp, mat, data)
 end
 
 unfold(resp::ResponseMatrix, data) = _unfold(resp, resp.matrix, data)
@@ -150,7 +153,7 @@ function _unfold(resp::ResponseMatrix, matrix::AbstractMatrix, data)
     R = matrix * energy_width
     R_vector = vec(sum(R, dims = 2))
 
-    @. bin_width * (data / R_vector)
+    return @. bin_width * (data / R_vector)
 end
 
 export ResponseMatrix

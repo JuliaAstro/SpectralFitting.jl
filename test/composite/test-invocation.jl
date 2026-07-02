@@ -38,21 +38,21 @@ out_flux = invokemodel(energy, model + model)
 out_flux = @inferred invokemodel(
     energy,
     model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model +
-    model,
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model +
+        model,
 )
 @test all(out_flux .== 96)
 

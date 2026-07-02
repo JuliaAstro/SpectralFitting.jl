@@ -9,17 +9,17 @@ end
 LevenbergMarquadt(; λ_inc = 10.0, λ_dec = 0.1) = LevenbergMarquadt(λ_inc, λ_dec)
 
 function _lsq_fit(
-    f,
-    x,
-    y,
-    cov,
-    parameters,
-    alg;
-    verbose = false,
-    max_iter = 1000,
-    kwargs...,
-)
-    LsqFit.curve_fit(
+        f,
+        x,
+        y,
+        cov,
+        parameters,
+        alg;
+        verbose = false,
+        max_iter = 1000,
+        kwargs...,
+    )
+    return LsqFit.curve_fit(
         f,
         x,
         y,
@@ -40,22 +40,22 @@ function configuration(prob::FittingProblem; kwargs...)
     if length(kw) > 0
         throw("Unknown keyword arguments: $(kw)")
     end
-    config
+    return config
 end
 
 function fit(prob::FittingProblem, args...; kwargs...)
     method_kwargs, config = _unpack_config(prob; kwargs...)
-    fit(config, args...; method_kwargs...)
+    return fit(config, args...; method_kwargs...)
 end
 
 function fit(
-    config::FittingConfig,
-    alg::LevenbergMarquadt;
-    verbose = false,
-    max_iter = 1000,
-    autodiff = supports_autodiff(config) ? :forward : :finite,
-    method_kwargs...,
-)
+        config::FittingConfig,
+        alg::LevenbergMarquadt;
+        verbose = false,
+        max_iter = 1000,
+        autodiff = supports_autodiff(config) ? :forward : :finite,
+        method_kwargs...,
+    )
     @assert fit_statistic(config) == ChiSquared() "Least squares only for χ2 statistics."
 
     total_objective = reduce(vcat, c.objective for c in config.data_cache)
@@ -63,7 +63,7 @@ function fit(
     total_cov = reduce(vcat, c.covariance for c in config.data_cache)
 
     function _invoke_wrapper(_, u)
-        vcat(calculate_objective!(config, u)...)
+        return vcat(calculate_objective!(config, u)...)
     end
 
     lsq_result = _lsq_fit(
@@ -86,16 +86,16 @@ function fit(
         nothing
     end
 
-    finalize_result(config, params, lsq_result; σparams = σ)
+    return finalize_result(config, params, lsq_result; σparams = σ)
 end
 
 function fit(
-    config::FittingConfig,
-    optim_alg;
-    verbose = false,
-    autodiff = _determine_ad_backend(config),
-    method_kwargs...,
-)
+        config::FittingConfig,
+        optim_alg;
+        verbose = false,
+        autodiff = _determine_ad_backend(config),
+        method_kwargs...,
+    )
     if verbose == true
         @warn "Verbose not yet supported for these fitting algorithms."
     end
@@ -106,7 +106,7 @@ function fit(
             dc = config.data_cache[i]
             measure(fit_statistic(config), out[i], dc.objective, dc.variance)
         end
-        m
+        return m
     end
 
     if !(autodiff isa Optimization.SciMLBase.NoAD) && (!supports_autodiff(config))
@@ -124,28 +124,23 @@ function fit(
     sol = Optimization.solve(opt_prob, optim_alg; method_kwargs...)
 
     # # TODO: temporary fix for type instabilities in Optimizations.jl
-    finalize_result(config, sol.u, sol)
+    return finalize_result(config, sol.u, sol)
 end
 
 function fit!(prob::FittingProblem, args...; kwargs...)
     result = fit(prob, args...; kwargs...)
     @assert length(result.config.parameter_bindings) == 1 "Can only update model when there is a single result slice"
     update_model!(only(prob.model.m), result[1])
-    result
+    return result
 end
 
-function _determine_bounds(config, ::A) where {A}
-    if A <: Optimization.SciMLBase.NoAD
-        nothing, nothing
-    else
-        get_lowerlimit.(config.u0), get_upperlimit.(config.u0)
-    end
-end
+_determine_bounds(_, ::Optimization.SciMLBase.NoAD) = (nothing, nothing)
+_determine_bounds(config, _) = (get_lowerlimit.(config.u0), get_upperlimit.(config.u0))
 
 function _determine_ad_backend(config)
     if supports_autodiff(config)
-        Optimization.ADTypes.AutoForwardDiff()
+        return Optimization.ADTypes.AutoForwardDiff()
     else
-        Optimization.SciMLBase.NoAD()
+        return Optimization.SciMLBase.NoAD()
     end
 end

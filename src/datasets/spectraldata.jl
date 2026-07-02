@@ -1,8 +1,8 @@
 struct SpectralDataPaths
-    spectrum::Union{Nothing,String}
-    background::Union{Nothing,String}
-    response::Union{Nothing,String}
-    ancillary::Union{Nothing,String}
+    spectrum::Union{Nothing, String}
+    background::Union{Nothing, String}
+    response::Union{Nothing, String}
+    ancillary::Union{Nothing, String}
 end
 
 function Base.show(io::IO, ::MIME"text/plain", @nospecialize(paths::SpectralDataPaths))
@@ -13,26 +13,27 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(paths::SpectralData
       . Ancillary      : $(paths.ancillary)
     """
     print(io, descr)
+    return
 end
 
 function SpectralDataPaths(;
-    spectrum = nothing,
-    background = nothing,
-    response = nothing,
-    ancillary = nothing,
-)
-    SpectralDataPaths(spectrum, background, response, ancillary)
+        spectrum = nothing,
+        background = nothing,
+        response = nothing,
+        ancillary = nothing,
+    )
+    return SpectralDataPaths(spectrum, background, response, ancillary)
 end
 
 function SpectralDataPaths(
-    spec_path;
-    background = nothing,
-    response = nothing,
-    ancillary = nothing,
-)
+        spec_path;
+        background = nothing,
+        response = nothing,
+        ancillary = nothing,
+    )
     background_path, response_path, ancillary_path =
         OGIP.read_paths_from_spectrum(spec_path)
-    SpectralDataPaths(
+    return SpectralDataPaths(
         spectrum = spec_path,
         background = isnothing(background) ? background_path : background,
         response = isnothing(response) ? response_path : response,
@@ -74,7 +75,7 @@ The available constructors are:
 
 Using [`SpectralDataPaths`](@ref).
 
-If the spectrum and repsonse matrix have already been loaded seperately, use
+If the spectrum and response matrix have already been loaded separately, use
 
     SpectralData(
         spectrum::Spectrum,
@@ -85,16 +86,16 @@ If the spectrum and repsonse matrix have already been loaded seperately, use
         ancillary = nothing,
     )
 """
-mutable struct SpectralData{T,Tag,D} <: AbstractDataset
+mutable struct SpectralData{T, Tag, D} <: AbstractDataset
     "Observed spectrum to be fitted."
     spectrum::Spectrum{T}
     "Instrument response."
     response::ResponseMatrix{T}
     "Background is optional."
-    background::Union{Nothing,Spectrum{T}}
+    background::Union{Nothing, Spectrum{T}}
     "Ancillary response is also optional, as it may have already been folded
     through the response matrix"
-    ancillary::Union{Nothing,AncillaryResponse{T}}
+    ancillary::Union{Nothing, AncillaryResponse{T}}
     "Energy of the spectrum translated from the response matrix."
     energy_low::Vector{T}
     energy_high::Vector{T}
@@ -108,36 +109,29 @@ end
 # constructor
 
 function SpectralData(
-    paths::SpectralDataPaths;
-    tag = nothing,
-    user_data = nothing,
-    kwargs...,
-)
-    spec, resp, back, anc = _read_all_ogip(paths; kwargs...)
-    SpectralData(
-        spec,
-        resp;
-        background = back,
-        ancillary = anc,
-        tag = tag,
-        user_data = user_data,
+        paths::SpectralDataPaths;
+        tag = nothing,
+        user_data = nothing,
+        kwargs...,
     )
+    spec, resp, background, ancillary = _read_all_ogip(paths; kwargs...)
+    return SpectralData(spec, resp; background, ancillary, tag, user_data)
 end
 
 function SpectralData(
-    spectrum::Spectrum{T},
-    response::ResponseMatrix;
-    # try to match the domains of the response matrix to the data
-    match_domains = true,
-    background = nothing,
-    ancillary = nothing,
-    tag = nothing,
-    user_data = nothing,
-) where {T}
+        spectrum::Spectrum{T},
+        response::ResponseMatrix;
+        # try to match the domains of the response matrix to the data
+        match_domains = true,
+        background = nothing,
+        ancillary = nothing,
+        tag = nothing,
+        user_data = nothing,
+    ) where {T}
     domain = _make_domain_vector(spectrum, response)
     energy_low, energy_high = _make_energy_vector(spectrum, response)
     data_mask = BitVector(fill(true, size(spectrum.data)))
-    data = SpectralData{T,typeof(tag),typeof(user_data)}(
+    data = SpectralData{T, typeof(tag), typeof(user_data)}(
         spectrum,
         response,
         background,
@@ -159,7 +153,7 @@ function SpectralData(
 end
 
 function Base.copy(data::SpectralData)
-    typeof(data)(
+    return typeof(data)(
         data.spectrum,
         data.response,
         data.background,
@@ -182,17 +176,17 @@ function _objective_to_units(dataset::SpectralData, obj, units)
     else
         obj
     end
-    adj[dataset.data_mask]
+    return adj[dataset.data_mask]
 end
 
 function make_objective(layout::AbstractDataLayout, dataset::SpectralData)
     obj = make_objective(layout, dataset.spectrum)
-    _objective_to_units(dataset, obj, support_units(layout))
+    return _objective_to_units(dataset, obj, support_units(layout))
 end
 
 function make_objective_variance(layout::AbstractDataLayout, dataset::SpectralData)
     var = make_objective_variance(layout, dataset.spectrum)
-    _objective_to_units(dataset, var, support_units(layout))
+    return _objective_to_units(dataset, var, support_units(layout))
 end
 
 make_model_domain(::ContiguouslyBinned, dataset::SpectralData) = dataset.domain
@@ -207,12 +201,12 @@ mask_energies!(dataset::SpectralData, low, high) =
 function mask_energies!(dataset::SpectralData, condition)
     J = @. !condition(dataset.energy_low) || !condition(dataset.energy_high)
     dataset.data_mask[J] .= false
-    dataset
+    return dataset
 end
 
 function restrict_domain!(dataset::SpectralData, condition)
     mask_energies!(dataset, condition)
-    dataset
+    return dataset
 end
 
 function _fold_transformer(T::Type, exposure_time, layout::AbstractDataLayout, R, ΔE, E)
@@ -226,7 +220,7 @@ function _fold_transformer(T::Type, exposure_time, layout::AbstractDataLayout, R
         elseif units === u"counts"
             @. f = f * exposure_time
         end
-        f
+        return f
     end
     function _transformer!!(output, energy, flux)
         f = rebin_if_different_domains!(get_tmp(cache, flux), E, energy, flux)
@@ -236,20 +230,20 @@ function _fold_transformer(T::Type, exposure_time, layout::AbstractDataLayout, R
         elseif units === u"counts"
             @. output = output * exposure_time
         end
-        output
+        return output
     end
-    _transformer!!
+    return _transformer!!
 end
 
 function objective_transformer(
-    layout::ContiguouslyBinned,
-    dataset::SpectralData{T},
-) where {T}
+        layout::ContiguouslyBinned,
+        dataset::SpectralData{T},
+    ) where {T}
     R_folded = response_matrix(dataset)
     R = R_folded[dataset.data_mask, :]
     ΔE = bin_widths(dataset)
     model_domain = response_energy(dataset.response)
-    _fold_transformer(T, dataset.spectrum.exposure_time, layout, R, ΔE, model_domain)
+    return _fold_transformer(T, dataset.spectrum.exposure_time, layout, R, ΔE, model_domain)
 end
 
 response_matrix(dataset::SpectralData) =
@@ -263,12 +257,12 @@ has_ancillary(dataset::SpectralData) = !isnothing(dataset.ancillary)
 
 function drop_bad_channels!(dataset::SpectralData)
     indices = findall(!=(GOOD_QUALITY), dataset.spectrum.quality)
-    drop_channels!(dataset, indices)
+    return drop_channels!(dataset, indices)
 end
 
 function drop_negative_channels!(dataset::SpectralData)
     indices = findall(<(0), dataset.spectrum.data)
-    drop_channels!(dataset, indices)
+    return drop_channels!(dataset, indices)
 end
 
 function drop_channels!(dataset::SpectralData, indices)
@@ -280,7 +274,7 @@ function drop_channels!(dataset::SpectralData, indices)
     deleteat!(dataset.data_mask, indices)
     deleteat!(dataset.energy_low, indices)
     deleteat!(dataset.energy_high, indices)
-    length(indices)
+    return length(indices)
 end
 
 spectrum_energy(dataset::SpectralData) =
@@ -310,19 +304,19 @@ function regroup!(dataset::SpectralData, grouping; safety_copy = false)
     resize!(dataset.energy_high, length(itt))
     # set everything to unmasked
     dataset.data_mask .= 1
-    dataset
+    return dataset
 end
 
 function regroup!(dataset::SpectralData; min_counts = nothing)
     if !isnothing(min_counts)
         group_min_counts!(dataset.spectrum, min_counts)
     end
-    regroup!(dataset, dataset.spectrum.grouping)
+    return regroup!(dataset, dataset.spectrum.grouping)
 end
 
 function normalize!(dataset::SpectralData)
     Base.depwarn("`normalize!` is deprecated. Use `set_units!` instead.", :normalize!)
-    set_units!(dataset, u"counts / (s * keV)")
+    return set_units!(dataset, u"counts / (s * keV)")
 end
 
 function subtract_background!(dataset::SpectralData)
@@ -331,11 +325,11 @@ function subtract_background!(dataset::SpectralData)
     end
     subtract_background!(dataset.spectrum, dataset.background)
     dataset.background = nothing
-    dataset
+    return dataset
 end
 
 function set_domain!(dataset::SpectralData, domain)
-    dataset.domain = domain
+    return dataset.domain = domain
 end
 
 objective_units(data::SpectralData) = data.spectrum.units
@@ -349,11 +343,11 @@ preferred_units(::Type{<:SpectralData}, ::Cash) = u"counts"
 _as_unit(::Unitful.FreeUnits{U}) where {U} = first(U)
 
 function _adjust_by_unit_difference!(
-    ΔE,
-    exposure_time,
-    x,
-    ::Unitful.FreeUnits{Units},
-) where {Units}
+        ΔE,
+        exposure_time,
+        x,
+        ::Unitful.FreeUnits{Units},
+    ) where {Units}
     foreach(Units) do u
         if u === _as_unit(u"s")
             @. x = x * exposure_time
@@ -371,14 +365,14 @@ function _adjust_by_unit_difference!(
             )
         end
     end
-    nothing
+    return nothing
 end
 
 function adjust_to_units!(data::SpectralData, s::Spectrum, x, units)
     ΔE = unmasked_bin_widths(data)
     exposure_time = s.exposure_time
     _adjust_by_unit_difference!(ΔE, exposure_time, x, units / s.units)
-    x
+    return x
 end
 
 function set_units!(s::SpectralData, units)
@@ -390,7 +384,7 @@ function set_units!(s::SpectralData, units)
         adjust_to_units!(s, s.background, s.background.errors, units)
         s.background.units = units
     end
-    s
+    return s
 end
 
 """
@@ -418,7 +412,7 @@ function unfold(data::SpectralData)
     unf = remake_spectrum(data.spectrum; data = unfolded, errors = variance)
     unf.units = unf.units / u"cm^2"
     mask!(unf, data.data_mask)
-    unf
+    return unf
 end
 
 # internal methods
@@ -430,7 +424,7 @@ function rebin_if_different_domains!(output, data_domain, model_domain, input)
         @warn "Model and data domains differ"
         interpolated_rebin!(output, data_domain, input, model_domain)
     end
-    output
+    return output
 end
 
 function _read_all_ogip(paths::SpectralDataPaths; forgiving = false)
@@ -470,7 +464,7 @@ function _read_all_ogip(paths::SpectralDataPaths; forgiving = false)
         nothing
     end
 
-    (spec, resp, back, ancillary)
+    return (spec, resp, back, ancillary)
 end
 
 function _make_domain_vector(::Spectrum, resp::ResponseMatrix{T}) where {T}
@@ -478,7 +472,7 @@ function _make_domain_vector(::Spectrum, resp::ResponseMatrix{T}) where {T}
     # todo: check these are indeed contiguous
     domain[2:end] .= resp.bins_high
     domain[1] = resp.bins_low[1]
-    domain
+    return domain
 end
 
 function _make_energy_vector(spec::Spectrum, resp::ResponseMatrix{T}) where {T}
@@ -491,18 +485,18 @@ function _make_energy_vector(spec::Spectrum, resp::ResponseMatrix{T}) where {T}
     high = full_domain[2:end]
     # full domain becomes the low
     resize!(full_domain, length(high))
-    full_domain, high
+    return full_domain, high
 end
 
 function check_domains(data::SpectralData)
-    (length(data.spectrum.channels) == length(data.response.channels)) &&
+    return (length(data.spectrum.channels) == length(data.response.channels)) &&
         (all(i -> i in data.response.channels, data.spectrum.channels))
 end
 
 function match_domains!(data::SpectralData)
     # drop parts of the response matrix that aren't in the spectrum
     I = filter(i -> i ∈ data.spectrum.channels, data.response.channels)
-    data.response = ResponseMatrix(
+    return data.response = ResponseMatrix(
         data.response.matrix[I, :],
         data.response.channels[I],
         data.response.channel_bins_low[I],
@@ -516,7 +510,7 @@ function background_dataset(data::SpectralData)
     new_data = copy(data)
     new_data.spectrum = new_data.background
     new_data.background = nothing
-    new_data
+    return new_data
 end
 
 function rescale!(data::SpectralData)
@@ -526,7 +520,7 @@ function rescale!(data::SpectralData)
     if has_background(data)
         rescale_background!(data)
     end
-    data
+    return data
 end
 
 function rescale_background!(data::SpectralData)
@@ -550,33 +544,30 @@ function rescale_background!(data::SpectralData)
     else
         throw("No background to subtract")
     end
-    data
+    return data
 end
 
 # for invoking a model on the same domain as the spectral data
 function invokemodel(
-    data::SpectralData,
-    model::AbstractSpectralModel,
-    new_free_params = nothing,
-)
+        data::SpectralData,
+        model::AbstractSpectralModel,
+        new_free_params = nothing,
+    )
     domain = make_output_domain(common_support(data, model), data)
     cache = make_parameter_cache(model)
     if !isnothing(new_free_params)
         update_free_parameters!(cache, new_free_params)
     end
     output = allocate_model_output(model, domain)
-    invokemodel!(output, domain, model, cache)[data.data_mask]
+    return invokemodel!(output, domain, model, cache)[data.data_mask]
 end
 
 # printing utilities
 
-function Base.show(io::IO, @nospecialize(data::SpectralData))
+Base.show(io::IO, @nospecialize(data::SpectralData)) =
     print(io, "SpectralData[$(data.spectrum.telescope_name)]")
-end
 
-function _printinfo(io, data::SpectralData{T}) where {T}
-    print_spectral_data_info(io, data)
-end
+_printinfo(io, data::SpectralData) = print_spectral_data_info(io, data)
 
 function print_spectral_data_info(io, data::SpectralData{T}) where {T}
     domain = @views data.domain
@@ -621,6 +612,7 @@ function print_spectral_data_info(io, data::SpectralData{T}) where {T}
         printstyled(io, "Ancillary: nothing", color = :gray)
         println(io, "")
     end
+    return
 end
 
 export SpectralData,
