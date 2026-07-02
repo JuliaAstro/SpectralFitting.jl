@@ -38,7 +38,7 @@ To visualize our data, we can use some of the [Plots.jl](https://docs.juliaplots
 plot(data, xlims = (0.5, 70), xscale = :log10)
 ```
 
-Note that the units are currently not divided by the energy bin widths. We can either do that manually, or use the [`normalize!`](@ref) to convert whatever units the data is currently in to the defacto standard `counts s⁻¹ keV⁻¹` for fitting. Whilst we're at it, we see in the model card that there are 40 [bad quality bins](https://heasarc.gsfc.nasa.gov/docs/heasarc/ofwg/docs/spectra/ogip_92_007.pdf) still present in our data. We can drop those as well, and plot the data on log-log axes:
+Note that the units are currently not divided by the energy bin widths. We can either do that manually, or use the [`normalize!`](@ref) to convert whatever units the data is currently in to the de facto standard `counts s⁻¹ keV⁻¹` for fitting. Whilst we're at it, we see in the model card that there are 40 [bad quality bins](https://heasarc.gsfc.nasa.gov/docs/heasarc/ofwg/docs/spectra/ogip_92_007.pdf) still present in our data. We can drop those as well, and plot the data on log-log axes:
 
 ```@example walk
 normalize!(data)
@@ -100,11 +100,7 @@ result = fit(prob, LevenbergMarquadt())
 Here we can see the parameter vector, the estimated error on each parameter, and the measure of the fit statistic (here chi squared). We can overplot our result on our data easily:
 
 ```@example walk
-plot(data,
-    ylims = (0.001, 2.0),
-    xscale = :log10,
-    yscale = :log10
-)
+plot(data, ylims = (0.001, 2.0), xscale = :log10, yscale = :log10)
 plot!(result)
 ```
 
@@ -116,11 +112,7 @@ result = fit(prob, LevenbergMarquadt())
 ```
 
 ```@example walk
-plot(data,
-    ylims = (0.001, 2.0),
-    xscale = :log10,
-    yscale = :log10
-)
+plot(data, ylims = (0.001, 2.0), xscale = :log10, yscale = :log10)
 plot!(result, label = "PowerLaw")
 ```
 
@@ -177,11 +169,7 @@ Now to fit we can repeat the above procedure, and even overplot the region of fl
 ```@example walk
 flux_result = fit(flux_problem, LevenbergMarquadt())
 
-plot(data,
-    ylims = (0.001, 2.0),
-    xscale = :log10,
-    yscale = :log10
-)
+plot(data, ylims = (0.001, 2.0), xscale = :log10, yscale = :log10)
 plot!(flux_result)
 vspan!([flux_model.c1.E_min.value, flux_model.c1.E_max.value], alpha = 0.5)
 ```
@@ -202,11 +190,9 @@ result2 = fit!(prob2, LevenbergMarquadt())
 Let's overplot this result against our power law result:
 
 ```@example walk
-dp = plot(data,
-    ylims = (0.001, 2.0),
-    xscale = :log10,
-    yscale = :log10,
-    legend = :bottomleft,
+dp = plot(
+    data, ylims = (0.001, 2.0),
+    xscale = :log10, yscale = :log10, legend = :bottomleft,
 )
 plot!(dp, result, label = "PowerLaw $(round(sum(result.stats)))")
 plot!(dp, result2, label = "BlackBody $(round(sum(result2.stats)))")
@@ -254,11 +240,9 @@ We can do all that plotting work with some of the builtin recipes:
 
 ```@example walk
 function plot_result(data, results...)
-    p1 = plot(data,
-        ylims = (0.001, 2.0),
-        xscale = :log10,
-        yscale = :log10,
-        legend = :bottomleft,
+    p1 = plot(
+        data, ylims = (0.001, 2.0),
+        xscale = :log10, yscale = :log10, legend = :bottomleft,
     )
     p2 = plot(xscale = :log10)
     for r in results
