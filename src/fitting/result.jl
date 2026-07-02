@@ -1,4 +1,4 @@
-export FitResult, update_model!, get_objective, get_objective_variance
+export FitResult, update_model!, get_objective, get_objective_variance, dof, reduced_statistic
 
 struct FitResult{Config <: FittingConfig, U, Err, T, Sol}
     config::Config
@@ -15,6 +15,10 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(result::FitResult))
     buff_c = IOContext(buff, io)
 
     total_stat = prettyfloat(sum(result.stats))
+    total_n_bins = sum(length(result.config.data_cache[i].objective) for i in 1:length(result.stats))
+    # we need to count dof manually here since we want the total dof across all datasets, which may have tied parameters
+    total_dof = total_n_bins - count(result.config.parameter_cache.free_mask)
+    total_reduced = prettyfloat(sum(result.stats) / total_dof)
 
     println(buff_c, "FitResult:")
     print(buff_c, " ")
@@ -33,8 +37,8 @@ function Base.show(io::IO, ::MIME"text/plain", @nospecialize(result::FitResult))
     text = String(take!(buff))
     print(
         io,
-        encapsulate(text),
-        "Σ$(statistic_symbol(fit_statistic(result.config))) = $(total_stat)",
+        encapsulate(text) *
+        "Σ$(statistic_symbol(fit_statistic(result.config))) = $(total_stat), $(reduced_statistic_symbol(fit_statistic(result.config))) = $(total_reduced) (dof=$(total_dof))",
     )
     return
 end
@@ -48,6 +52,19 @@ struct FitResultSlice{P <: FitResult, U, Err, T}
     err::Err
     stats::T
 end
+
+function dof(slice::FitResultSlice)
+    i = slice.index
+    parent_config = slice.parent.config
+    
+    n_bins = length(parent_config.data_cache[i].objective)
+    local_free_mask = parent_config.parameter_cache.free_mask[parent_config.parameter_bindings[i]]
+    n_free = count(local_free_mask)
+    
+    n_bins - n_free
+end
+
+reduced_statistic(slice::FitResultSlice) = slice.stats / dof(slice)
 
 function Base.show(io::IO, ::MIME"text/plain", @nospecialize(slice::FitResultSlice))
     buff = IOBuffer()
@@ -91,7 +108,11 @@ function _pretty_print_result(io::IO, slice::FitResultSlice)
     println(io)
 
     stat_sym = statistic_symbol(fit_statistic(slice.parent.config))
+    red_stat_sym = reduced_statistic_symbol(fit_statistic(slice.parent.config))
+    ν = dof(slice)
     print(io, " . $(rpad(stat_sym, param_padding - 3)): $(prettyfloat(slice.stats))")
+    println(io)
+    print(io, " . $(rpad(red_stat_sym, param_padding - 3)): $(prettyfloat(reduced_statistic(slice))) (dof=$ν)")
     println(io)
     return
 end

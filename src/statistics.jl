@@ -1,9 +1,11 @@
 abstract type AbstractStatistic end
 statistic_symbol(s::AbstractStatistic) = Base.typename(typeof(s)).name
+reduced_statistic_symbol(s::AbstractStatistic) = statistic_symbol(s) * "_reduced"
 
 struct ChiSquared <: AbstractStatistic end
 
 statistic_symbol(::ChiSquared) = "χ²"
+reduced_statistic_symbol(::ChiSquared) = "χᵥ²"
 
 measure(::ChiSquared, y, ŷ, σ²) = sum(@.((y - ŷ)^2 / σ²))
 
