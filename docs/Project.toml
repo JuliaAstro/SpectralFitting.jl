@@ -17,6 +17,7 @@ SpectralFitting = {path = ".."}
 XSPECModels = {path = "../lib/XSPECModels"}
 
 [compat]
+BenchmarkTools = "1.8.0"
 CairoMakie = "0.15"
 Documenter = "1"
 Makie = "0.24"
