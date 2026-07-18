@@ -6,3 +6,6 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SpectralFitting = "f2c56810-742e-4b72-8bf4-27af3bb81a12"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 XSPECModels = "e051c099-9e89-4e1f-aad2-39a4611ecf4d"
+
+[compat]
+Aqua = "0.8.16"
