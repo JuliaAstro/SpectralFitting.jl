@@ -9,3 +9,4 @@ XSPECModels = "e051c099-9e89-4e1f-aad2-39a4611ecf4d"
 
 [compat]
 Aqua = "0.8.16"
+OptimizationOptimJL = "0.4.16"
