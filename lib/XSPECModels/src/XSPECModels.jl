@@ -13,6 +13,8 @@ include("ccall-wrapper.jl")
 include("additive.jl")
 include("multiplicative.jl")
 include("convolutional.jl")
+include("xspec_string.jl")
+export XSPEC_MODEL_NAMES, parse_xspec_model_string, xspec_model_string, @xspec_str
 
 function register_xspec_data()
     push!(SpectralFitting.ALL_STORAGE_PATHS, LIBXSPEC_STORAGE_PATH)
