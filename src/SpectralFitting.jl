@@ -92,4 +92,10 @@ function __init__()
     return
 end
 
+
+include("multi-data/domain_utils.jl")
+include("multi-data/norm_extraction.jl")
+include("multi-data/multi_problem.jl")
+
 end # module
+
