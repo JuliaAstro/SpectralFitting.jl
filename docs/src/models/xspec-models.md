@@ -15,6 +15,17 @@ Using the package is straight forward once installed:
 ```julia
 using SpectralFitting, XSPECModels
 ```
+## XSPEC model strings
+
+If you have an existing XSPEC model string, translate it directly using the
+`xspec"..."` string macro provided by this package:
+```julia
+model = xspec"phabs*powerlaw"
+model = xspec"tbabs*(powerlaw+bbody)"
+```
+
+See [Transitioning from XSPEC](@ref) for the complete guide including
+`parse_xspec_model_string`, `xspec_model_string`, and `XSPEC_MODEL_NAMES`.
 
 !!! note
     The convention is that models that have are imported from XSPEC or have XSPEC ABI are prefixed with `XS_` in their name. For example, the XSPEC equivalent of [`PowerLaw`](@ref) is [`XS_PowerLaw`](@ref).

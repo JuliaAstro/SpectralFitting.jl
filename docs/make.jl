@@ -32,6 +32,7 @@ makedocs(
             "Surrogate models" => "models/surrogate-models.md",
             "XSPEC models" => "models/xspec-models.md",
         ],
+         "Transitioning from XSPEC" => "transitioning-from-xspec.md", 
         "Datasets" => [
             "Using datasets" => "datasets/datasets.md",
             "Mission support" => "datasets/mission-support.md",

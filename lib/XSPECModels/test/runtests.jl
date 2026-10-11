@@ -40,6 +40,10 @@ end
     include("test-xspec-models.jl")
 end
 
+@testset "XSPEC model strings (Issue #187)" begin
+    include("test-xspec-string.jl")
+end
+
 @testset "Integration" begin
     include("test-validity.jl")
     include("test-sample-data.jl")
